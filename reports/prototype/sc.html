@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>SC – Início (Protótipo)</title>
+
+  <!-- Dependências oficiais do componente Zoom (Fluig Style Guide) -->
+    <link type="text/css" rel="stylesheet" href="https://fluig.totvs.com/style-guide/css/fluig-style-guide.min.css">
+    <script type="text/javascript" src="https://fluig.totvs.com/portal/resources/js/jquery/jquery.js"></script>
+    <script type="text/javascript" src="https://fluig.totvs.com/portal/resources/js/jquery/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="https://fluig.totvs.com/webdesk/vcXMLRPC.js"></script>
+    <script type="text/javascript" src="https://fluig.totvs.com/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+    <script type="text/javascript" src="https://fluig.totvs.com/ecm_resources/resources/assets/forms/forms.js"></script>
+    <script type="text/javascript" src="https://fluig.totvs.com/ecm_resources/resources/assets/forms/wdkdetail.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://fluig.totvs.com/style-guide/css/fluig-style-guide-select.min.css"> 
+    <link rel="stylesheet" type="text/css" href="https://fluig.totvs.com/style-guide/js/fluig-style-guide-richeditor.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://fluig.totvs.com/style-guide/css/fluig-style-guide-select.min.css"></script>
+    <link rel="stylesheet" type="text/css" href="https://fluig.totvs.com/style-guide/js/fluig-style-guide-select.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://fluig.totvs.com/style-guide/js/fluig-style-guide-select.min.js"></script>
+  <!-- ↑ Doc oficial do Zoom especifica exatamente essas libs. -->
+
+  <style>
+    /* Namespace para evitar conflito global (boas práticas) */
+    .vf-sc .panel { margin-bottom: 16px; }
+    .vf-sc .table > thead > tr > th,
+    .vf-sc .table > tbody > tr > td { vertical-align: middle; }
+    .vf-sc .icon-btn { cursor: pointer; }
+    .vf-sc .required:after { content: " *"; color: #d9534f; }
+    .vf-sc .col-tight { padding-right: 6px; padding-left: 6px; }
+    .vf-sc .w-110 { width: 110px; }
+    .vf-sc .w-80  { width: 80px; }
+  </style>
+</head>
+
+<body class="fluig-style-guide">
+<div class="container-fluid vf-sc">
+
+  <!-- Painel: Cabeçalho -->
+  <div class="panel panel-default">
+    <div class="panel-heading"><strong>Solicitação de Compras – Início</strong></div>
+    <div class="panel-body">
+      <div class="row">
+        <!-- Unidade do Requisitante -->
+        <div class="col-md-4 col-tight">
+          <label for="unidRequis" class="required">Unidade do Requisitante</label>
+          <input type="zoom" class="form-control" id="unidRequis" name="unidRequis" zoomvalue="codigo" data-zoom="
+            {
+              'datasetId':'ds_protheus_unidadeRequis',
+              'displayKey':'descricao',
+              'placeholder':'Selecione...',
+              'fields':[
+                {'field':'codigo','label':'Código','visible':'false'},
+                {'field':'descricao','label':'Descrição','standard':true}
+              ]
+            }">
+          <input type="hidden" id="hidden_unidRequis" name="hidden_unidRequis">
+        </div>
+
+        <!-- Comprador -->
+        <div class="col-md-4 col-tight">
+          <label for="codComprador" class="required">Comprador</label>
+          <input type="zoom" class="form-control" id="codComprador" name="codComprador" zoomvalue="codigo" data-zoom="
+            {
+              'datasetId':'ds_protheus_comprador',
+              'displayKey':'nome',
+              'placeholder':'Selecione...',
+              'fields':[
+                {'field':'codigo','label':'Código','visible':'false'},
+                {'field':'nome','label':'Nome','standard':true}
+              ]
+            }">
+          <input type="hidden" id="hidden_codComprador" name="hidden_codComprador">
+        </div>
+
+        <!-- Filial de Entrega -->
+        <div class="col-md-4 col-tight">
+          <label for="filialEntrega" class="required">Filial de Entrega</label>
+          <input type="zoom" class="form-control" id="filialEntrega" name="filialEntrega" zoomvalue="codigo" data-zoom="
+            {
+              'datasetId':'ds_protheus_filialEntrega',
+              'displayKey':'descricao',
+              'placeholder':'Selecione...',
+              'fields':[
+                {'field':'codigo','label':'Código','visible':'false'},
+                {'field':'descricao','label':'Descrição','standard':true}
+              ]
+            }">
+          <input type="hidden" id="hidden_filialEntrega" name="hidden_filialEntrega">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel: Itens -->
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <div class="row">
+        <div class="col-sm-6"><strong>Itens da SC</strong></div>
+        <div class="col-sm-6 text-right">
+          <button type="button" class="btn btn-default btn-sm" onclick="wdkAddChild('tbItens')">
+            <span class="fluigicon fluigicon-plus icon-sm"></span> Adicionar item
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <div class="table-responsive">
+        <table id="tbItens" tablename="tbItens" class="table table-condensed table-striped" customFnDelete="fnCustomDelete(this)">
+          <thead>
+            <tr>
+              <th class="required">Produto</th>
+              <th>Descrição</th>
+              <th class="w-80">UM</th>
+              <th class="required">Conta Contábil</th>
+              <th class="required">Centro de Custo</th>
+              <th class="w-110">Armazém</th>
+              <th class="required w-110">Quantidade</th>
+              <th class="w-80"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Linha modelo do Pai x Filho.
+                 O Fluig numerará os campos como produto___1, descricao___1, etc. -->
+            <tr>
+              <!-- Produto (zoom) -->
+              <td>
+                <input type="zoom" class="form-control" id="produto" name="produto" zoomvalue="codigo" data-zoom="
+                  {
+                    'datasetId':'ds_protheus_produto',
+                    'displayKey':'descricao',
+                    'placeholder':'Pesquisar produto...',
+                    'fields':[
+                      {'field':'codigo','label':'Código','visible':'false'},
+                      {'field':'descricao','label':'Descrição','standard':true},
+                      {'field':'unidade','label':'UM'},
+                      {'field':'contaContabil','label':'Conta'},
+                      {'field':'centroCusto','label':'CC'},
+                      {'field':'armazem','label':'Armazém'}
+                    ]
+                  }">
+                <input type="hidden" id="hidden_produto" name="hidden_produto">
+              </td>
+
+              <!-- Descrição (ro) -->
+              <td><input type="text" class="form-control" id="descricao" name="descricao" readonly></td>
+
+              <!-- UM (ro) -->
+              <td><input type="text" class="form-control" id="unidade" name="unidade" readonly></td>
+
+              <!-- Conta Contábil (zoom editável) -->
+              <td>
+                <input type="zoom" class="form-control" id="contaContabil" name="contaContabil" zoomvalue="codigo" data-zoom="
+                  {
+                    'datasetId':'ds_protheus_contaContabil',
+                    'displayKey':'descricao',
+                    'placeholder':'Selecione...',
+                    'fields':[
+                      {'field':'codigo','label':'Código','visible':'false'},
+                      {'field':'descricao','label':'Descrição','standard':true}
+                    ]
+                  }">
+                <input type="hidden" id="hidden_contaContabil" name="hidden_contaContabil">
+              </td>
+
+              <!-- Centro de Custo (zoom editável) -->
+              <td>
+                <input type="zoom" class="form-control" id="centroCusto" name="centroCusto" zoomvalue="codigo" data-zoom="
+                  {
+                    'datasetId':'ds_protheus_centroCusto',
+                    'displayKey':'descricao',
+                    'placeholder':'Selecione...',
+                    'fields':[
+                      {'field':'codigo','label':'Código','visible':'false'},
+                      {'field':'descricao','label':'Descrição','standard':true}
+                    ]
+                  }">
+                <input type="hidden" id="hidden_centroCusto" name="hidden_centroCusto">
+              </td>
+
+              <!-- Armazém (ro) -->
+              <td><input type="text" class="form-control" id="armazem" name="armazem" readonly></td>
+
+              <!-- Quantidade -->
+              <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="0.001" step="0.001" placeholder="0,000"></td>
+
+              <!-- Remover linha -->
+              <td>
+                <span class="fluigicon fluigicon-trash icon-sm icon-btn" title="Remover" onclick="fnWdkRemoveChild(this)"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="text-muted">
+        <small>Regras (protótipo): Cabeçalho completo + &ge; 1 item válido. Item válido = Produto, Descrição/UM (auto), Conta, CC, Armazém e Quantidade &gt; 0.</small>
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+/**
+ * Preenchimento automático por seleção no Zoom (doc oficial recomenda usar estas funções).
+ * - Produto selecionado => preenche Descrição, UM, Conta, CC, Armazém na MESMA linha.
+ * - Produto removido    => limpa os campos derivados da linha.
+ */
+function setSelectedZoomItem(item) {
+  if (!item || !item.inputId) return;
+
+  // Produto em Pai x Filho (produto___IDX)
+  if (item.inputId.indexOf("produto___") === 0 || item.inputId === "produto") {
+    var idx = getIdx(item.inputId, "produto");
+    // Os campos vêm do próprio item selecionado (columns do data-zoom)
+    setVal("descricao___"      + idx, item.descricao || "");
+    setVal("unidade___"        + idx, item.unidade   || "");
+    setVal("armazem___"        + idx, item.armazem   || "");
+
+    // Pré-preencher Conta/CC com o que veio do produto (o usuário pode trocar nos respectivos zooms)
+    if (item.contaContabil) {
+      // Quando o componente Zoom expõe API setValue(), use-a; caso contrário, preenche visível/hidden.
+      safeSetZoomValue("contaContabil___" + idx, { codigo: item.contaContabil, descricao: item.contaContabil });
+    }
+    if (item.centroCusto) {
+      safeSetZoomValue("centroCusto___" + idx, { codigo: item.centroCusto, descricao: item.centroCusto });
+    }
+  }
+}
+
+function removedZoomItem(item) {
+  if (!item || !item.inputId) return;
+
+  if (item.inputId.indexOf("produto___") === 0 || item.inputId === "produto") {
+    var idx = getIdx(item.inputId, "produto");
+    setVal("descricao___" + idx, "");
+    setVal("unidade___"   + idx, "");
+    setVal("armazem___"   + idx, "");
+    // Limpeza dos zooms de Conta/CC: alguns ambientes têm API .clear(); se não houver, zere visível/hidden.
+    clearZoomFallback("contaContabil___" + idx);
+    clearZoomFallback("centroCusto___"   + idx);
+  }
+}
+
+/* Utilitários de linha Pai x Filho */
+function getIdx(inputId, base){ var p = String(inputId).split("___"); return p.length>1 ? p[1] : ""; }
+function setVal(fieldId, value){ var $el = $("#"+fieldId); if($el.length){ $el.val(value); } }
+
+/* Tenta usar API do Zoom; se não estiver disponível, faz fallback preenchendo visível e hidden */
+function safeSetZoomValue(zoomId, obj){
+  try {
+    var z = window[zoomId];
+    if (z && typeof z.setValue === "function") {
+      z.setValue({ 'codigo': obj.codigo, 'descricao': obj.descricao });
+      return;
+    }
+  } catch(e) { /* ignore */ }
+  // Fallback
+  $("#"+zoomId).val(obj.descricao || obj.codigo || "");
+  $("#hidden_"+zoomId).val(obj.codigo || "");
+}
+
+/* Limpa seleção de um Zoom com fallback */
+function clearZoomFallback(zoomId){
+  try {
+    var z = window[zoomId];
+    if (z && typeof z.clear === "function") { z.clear(); return; }
+  } catch(e) { /* ignore */ }
+  $("#"+zoomId).val("");
+  $("#hidden_"+zoomId).val("");
+}
+
+/* Exemplo simples de função custom delete para o atributo customFnDelete */
+function fnCustomDelete(el){ fnWdkRemoveChild(el); }
+</script>
+</body>
+</html>

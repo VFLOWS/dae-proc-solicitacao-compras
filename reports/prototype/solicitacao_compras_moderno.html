@@ -1,0 +1,1316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema de Solicitação de Compras - Interface Moderna">
+    <title>Solicitação de Compras | Design Moderno</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --gray-light: #e9ecef;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; 
+            background: #f5f7fb; 
+            color: var(--dark); 
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        .app-header {
+            position: relative;
+            z-index: 10;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        /* Card */
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #f8f9fa, #fff);
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4cc9f0, #4895ef);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        /* Form Elements */
+        .form-group { 
+            margin-bottom: 1.5rem; 
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-group .required::after {
+            content: ' *';
+            color: var(--danger);
+        }
+        
+        .form-control:disabled,
+        .form-control[readonly] {
+            background-color: var(--gray-light);
+            cursor: not-allowed;
+        }
+        
+        .form-text {
+            display: block;
+            margin-top: 0.25rem;
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+        
+        .is-invalid {
+            border-color: var(--danger) !important;
+            padding-right: calc(1.5em + 0.75rem);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23f72585' viewBox='0 0 12 12'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23f72585' stroke='none'/%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+        }
+        
+        .invalid-feedback {
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: var(--danger);
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        /* Table */
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--gray-light); }
+        .table th { font-weight: 600; color: var(--gray); font-size: 0.75rem; text-transform: uppercase; }
+
+        /* Autocomplete Styling */
+        .autocomplete {
+            position: relative;
+            width: 100%;
+        }
+        
+        .autocomplete-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: none;
+            margin-top: 2px;
+        }
+        
+        .autocomplete-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #fff;
+        }
+        
+        .autocomplete-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(2px);
+        }
+        
+        .autocomplete-item.active {
+            background-color: #e9ecef;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05) inset;
+        }
+        
+        /* Estilo para campo preenchido */
+        .is-valid {
+            border-color: #198754 !important;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat;
+            background-position: right calc(0.375em + 0.1875rem) center;
+            background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            padding-right: 2.25rem;
+        }
+        
+        .autocomplete-item .product-code {
+            font-size: 0.85em;
+            color: #6c757d;
+            margin-left: 10px;
+        }
+        
+        .no-results {
+            padding: 10px 15px;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        /* Modal Styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1050;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal.show .modal-content {
+            transform: translateY(0);
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--gray-light);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .card-header { 
+                flex-direction: column; 
+                gap: 1rem; 
+                text-align: center; 
+            }
+            .modal {
+                padding: 1rem;
+            }
+            .modal-content {
+                margin: 1rem;
+                max-height: 80vh;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* Loading State */
+        .btn-loading {
+            display: none !important;
+        }
+        
+        .btn.is-loading .btn-content {
+            display: none;
+        }
+        
+        .btn.is-loading .btn-loading {
+            display: inline-flex !important;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" role="main">
+        <!-- Header -->
+        <header class="app-header">
+            <div>
+                <h1>Solicitação de Compras</h1>
+                <p class="sr-only" id="page-description">Formulário para solicitação de compras</p>
+                <p>Solicite seus itens de forma rápida e fácil</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-save-draft" aria-label="Salvar como rascunho">
+                <span class="btn-content">
+                    <i class="fas fa-save" aria-hidden="true"></i> 
+                    <span>Salvar Rascunho</span>
+                </span>
+                <span class="btn-loading" style="display: none;">
+                    <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                    <span>Salvando...</span>
+                </span>
+            </button>
+        </header>
+
+        <!-- Items Section -->
+        <div class="card" aria-labelledby="items-section-title">
+            <div class="card-header">
+                <h2 id="items-section-title">
+                    <i class="fas fa-shopping-cart" aria-hidden="true"></i> 
+                    <span>Itens da Solicitação</span>
+                </h2>
+                <button type="button" class="btn btn-primary" id="add-item-btn" aria-label="Adicionar novo item">
+                    <i class="fas fa-plus" aria-hidden="true"></i> 
+                    <span>Adicionar Item</span>
+                </button>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Descrição</th>
+                            <th>Quantidade</th>
+                            <th>Valor Unit.</th>
+                            <th>Total</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="items-tbody">
+                        <tr><td colspan="6" class="text-center">Nenhum item adicionado</td></tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" class="text-right"><strong>Total:</strong></td>
+                            <td id="total-amount">R$ 0,00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="itemModal" tabindex="-1" role="dialog" aria-labelledby="itemModalLabel" aria-hidden="true">
+        <div class="modal-content" role="document">
+            <div class="modal-header">
+                <h3 id="itemModalLabel" class="h4">Adicionar Item</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="item-form">
+                    <div class="form-group">
+                        <label for="item-product">Selecione o Produto</label>
+                        <div class="autocomplete">
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="item-product" 
+                                   autocomplete="off"
+                                   placeholder="Digite o nome ou código do produto..."
+                                   aria-haspopup="true"
+                                   aria-expanded="false">
+                            <div id="product-results" class="autocomplete-results">
+                                <!-- Results will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="item-quantity">Quantidade</label>
+                                <input type="number" class="form-control" id="item-quantity" min="0.01" step="0.01" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="item-unit">Unidade</label>
+                                <input type="text" class="form-control" id="item-unit" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="item-cost-center">Centro de Custo</label>
+                        <div class="autocomplete">
+                            <input type="text" class="form-control" id="item-cost-center" 
+                                   placeholder="Digite o código ou nome do centro de custo" 
+                                   autocomplete="off" required>
+                            <div id="cost-center-results" class="autocomplete-results"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="item-account">Conta Contábil</label>
+                        <div class="autocomplete">
+                            <input type="text" class="form-control" id="item-account" 
+                                   placeholder="Digite o código ou nome da conta contábil"
+                                   autocomplete="off" required>
+                            <div id="account-results" class="autocomplete-results"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="item-storable">Estocável</label>
+                        <select class="form-control" id="item-storable" disabled>
+                            <option value="true">Sim</option>
+                            <option value="false">Não</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="item-price">Valor Unitário</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">R$</span>
+                            </div>
+                            <input type="text" class="form-control" id="item-price" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="item-link">Link do Produto (opcional)</label>
+                        <input type="url" class="form-control" id="item-link">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="item-notes">Observações (opcional)</label>
+                        <textarea class="form-control" id="item-notes" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="save-item">
+                    <i class="fas fa-save"></i> Salvar Item
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator (initially hidden) -->
+    <div id="loading-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 9999; display: none; justify-content: center; align-items: center;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script>
+        // Configurações globais
+        const CONFIG = {
+            currency: 'BRL',
+            dateFormat: 'dd/MM/yyyy',
+            maxFileSize: 5 * 1024 * 1024, // 5MB
+            maxItems: 100
+        };
+
+        // Application State
+        const state = {
+            isLoading: false,
+            isSubmitting: false,
+            items: [],
+            editIndex: -1,
+            
+            // Dados para autocomplete
+            costCenters: [
+                { code: 'CC001', name: 'Administração' },
+                { code: 'CC002', name: 'Departamento Pessoal' },
+                { code: 'CC003', name: 'Limpeza' },
+                { code: 'CC004', name: 'TI' },
+                { code: 'CC005', name: 'Manutenção' },
+                { code: 'CC006', name: 'Financeiro' }
+            ],
+            
+            accounts: [
+                { code: '4.1.1.01', name: 'Material de Escritório' },
+                { code: '4.1.1.02', name: 'Materiais Diversos' },
+                { code: '4.1.1.03', name: 'Materiais de Limpeza' },
+                { code: '4.1.2.01', name: 'Equipamentos de Informática' },
+                { code: '4.1.2.02', name: 'Softwares e Licenças' },
+                { code: '4.1.3.01', name: 'Materiais de Manutenção' }
+            ],
+            products: [
+                // Dados de exemplo - em produção, isso viria de uma API
+                { id: 1001, code: 'MAT-001', name: 'Papel A4 75g 210x297mm', costCenter: 'CC001', account: '4.1.1.01', storable: true, unit: 'CX' },
+                { id: 1002, code: 'MAT-002', name: 'Caneta Esferográfica Azul', costCenter: 'CC001', account: '4.1.1.01', storable: true, unit: 'UN' },
+                { id: 1003, code: 'MAT-003', name: 'Grampeador Grande', costCenter: 'CC002', account: '4.1.1.02', storable: true, unit: 'UN' },
+                { id: 2001, code: 'LIM-001', name: 'Álcool em Gel 70% 5L', costCenter: 'CC003', account: '4.1.1.03', storable: true, unit: 'UN' },
+                { id: 2002, code: 'LIM-002', name: 'Desinfetante 5L', costCenter: 'CC003', account: '4.1.1.03', storable: true, unit: 'UN' },
+                { id: 3001, code: 'INF-001', name: 'Notebook i5 16GB RAM', costCenter: 'CC004', account: '4.1.2.01', storable: false, unit: 'UN' },
+                { id: 3002, code: 'INF-002', name: 'Monitor 24" Full HD', costCenter: 'CC004', account: '4.1.2.01', storable: false, unit: 'UN' }
+            ],
+            selectedProduct: null
+        };
+
+        // Utility Functions
+        const formatCurrency = (value) => {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        };
+        
+        const showLoading = (show = true) => {
+            const $overlay = $('#loading-overlay');
+            if (show) {
+                $overlay.css('display', 'flex').fadeIn(200);
+            } else {
+                $overlay.fadeOut(200, function() {
+                    $(this).hide();
+                });
+            }
+        };
+        
+        const showToast = (message, type = 'success') => {
+            // Implementar toast de notificação
+            console.log(`${type.toUpperCase()}: ${message}`);
+            alert(`${type.toUpperCase()}: ${message}`);
+        };
+        
+        // Form Validation
+        const initFormValidation = () => {
+            $('#item-form').on('submit', function(e) {
+                e.preventDefault();
+                saveItem();
+            });
+            
+            // Validação em tempo real
+            $('input[required], select[required]').on('blur', function() {
+                validateField($(this));
+            });
+        };
+        
+        const validateField = ($field) => {
+            const value = $field.val();
+            const isRequired = $field.prop('required');
+            let isValid = true;
+            
+            if (isRequired && !value) {
+                isValid = false;
+            } else if ($field.attr('type') === 'email' && !/\S+@\S+\.\S+/.test(value)) {
+                isValid = false;
+            } else if ($field.attr('type') === 'number' && isNaN(parseFloat(value))) {
+                isValid = false;
+            }
+            
+            $field.toggleClass('is-invalid', !isValid);
+            return isValid;
+        };
+        
+        const validateForm = ($form) => {
+            let isValid = true;
+            $form.find('[required]').each(function() {
+                if (!validateField($(this))) {
+                    isValid = false;
+                }
+            });
+            return isValid;
+        };
+        
+        // Modal Functions
+        const openModal = () => {
+            $('body').css('overflow', 'hidden');
+            $('#itemModal').addClass('show');
+            $('.modal-backdrop').remove();
+            $('body').append('<div class="modal-backdrop fade show"></div>');
+        };
+        
+        const closeModal = () => {
+            $('body').css('overflow', '');
+            $('#itemModal').removeClass('show');
+            $('.modal-backdrop').remove();
+            $('#item-form')[0].reset();
+        };
+        
+        // Data Functions
+        const loadDraft = () => {
+            try {
+                const draft = localStorage.getItem('purchaseRequestDraft');
+                if (draft) {
+                    state.items = JSON.parse(draft);
+                    updateItemsTable();
+                }
+            } catch (e) {
+                console.error('Error loading draft:', e);
+            }
+        };
+        
+        const saveDraft = () => {
+            try {
+                localStorage.setItem('purchaseRequestDraft', JSON.stringify(state.items));
+                showToast('Rascunho salvo com sucesso!', 'success');
+            } catch (e) {
+                console.error('Error saving draft:', e);
+                showToast('Erro ao salvar rascunho', 'error');
+            }
+        };
+        
+        // Item Management
+        const addItem = (item) => {
+            state.items.push(item);
+            updateItemsTable();
+            saveDraft();
+        };
+        
+        const updateItem = (index, item) => {
+            state.items[index] = item;
+            updateItemsTable();
+            saveDraft();
+        };
+        
+        const deleteItem = (index) => {
+            state.items.splice(index, 1);
+            updateItemsTable();
+            saveDraft();
+        };
+        
+        const updateItemsTable = () => {
+            const $tbody = $('#items-tbody');
+            $tbody.empty();
+            
+            if (state.items.length === 0) {
+                $tbody.append('<tr><td colspan="6" class="text-center">Nenhum item adicionado</td></tr>');
+                return;
+            }
+            
+            state.items.forEach((item, index) => {
+                const total = item.quantity * item.price;
+                $tbody.append(`
+                    <tr class="fade-in">
+                        <td>${index + 1}</td>
+                        <td>${item.name}</td>
+                        <td>${item.quantity} ${item.unit}</td>
+                        <td>${formatCurrency(item.price)}</td>
+                        <td>${formatCurrency(total)}</td>
+                        <td class="text-nowrap">
+                            <button type="button" class="btn btn-sm btn-primary edit-item" data-index="${index}" aria-label="Editar item">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger remove-item" data-index="${index}" aria-label="Remover item">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+            });
+            
+            // Atualiza o total
+            const total = state.items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+            $('#total-amount').text(formatCurrency(total));
+        };
+        
+        const saveItem = () => {
+            if (!validateForm($('#item-form'))) {
+                showToast('Por favor, preencha todos os campos obrigatórios corretamente.', 'error');
+                return;
+            }
+            
+            const item = {
+                name: $('#item-product').val(),
+                quantity: parseFloat($('#item-quantity').val()),
+                unit: $('#item-unit').val(),
+                price: parseFloat($('#item-price').val().replace(/\./g, '').replace(',', '.')),
+                link: $('#item-link').val() || null,
+                notes: $('#item-notes').val() || null,
+                createdAt: new Date().toISOString()
+            };
+            
+            if (state.editIndex >= 0) {
+                updateItem(state.editIndex, item);
+                showToast('Item atualizado com sucesso!', 'success');
+            } else {
+                addItem(item);
+                showToast('Item adicionado com sucesso!', 'success');
+            }
+            
+            closeModal();
+            state.editIndex = -1;
+        };
+        
+        // Event Handlers
+        const initEventHandlers = () => {
+            // Adicionar item
+            $('#add-item-btn').on('click', () => {
+                state.editIndex = -1;
+                $('#item-form')[0].reset();
+                $('#itemModalLabel').text('Adicionar Item');
+                openModal();
+            });
+            
+            // Editar item
+            $(document).on('click', '.edit-item', function() {
+                state.editIndex = $(this).data('index');
+                const item = state.items[state.editIndex];
+                
+                $('#item-product').val(item.name);
+                $('#item-quantity').val(item.quantity);
+                $('#item-unit').val(item.unit);
+                $('#item-price').val(item.price.toFixed(2).replace('.', ','));
+                $('#item-link').val(item.link || '');
+                $('#item-notes').val(item.notes || '');
+                
+                $('#itemModalLabel').text('Editar Item');
+                openModal();
+            });
+            
+            // Remover item
+            $(document).on('click', '.remove-item', function() {
+                if (confirm('Tem certeza que deseja remover este item?')) {
+                    deleteItem($(this).data('index'));
+                    showToast('Item removido com sucesso!', 'success');
+                }
+            });
+            
+            // Salvar item
+            $('#save-item').on('click', saveItem);
+            
+            // Salvar rascunho
+            $('#btn-save-draft').on('click', () => {
+                $(this).addClass('is-loading');
+                setTimeout(() => {
+                    saveDraft();
+                    $(this).removeClass('is-loading');
+                }, 500);
+            });
+            
+            // Fechar modal
+            $('[data-dismiss="modal"], .modal-backdrop').on('click', closeModal);
+            
+            // Prevenir fechamento ao clicar dentro do modal
+            $('.modal-content').on('click', (e) => {
+                e.stopPropagation();
+            });
+        };
+        
+        // Função para buscar produtos
+        const searchProducts = (query) => {
+            if (!query || query.length < 2) return [];
+            const searchTerm = query.toLowerCase().trim();
+            
+            return state.products.filter(product => {
+                const nameMatch = product.name.toLowerCase().includes(searchTerm);
+                const idMatch = product.id.toString().includes(searchTerm);
+                const codeMatch = product.code && product.code.toLowerCase().includes(searchTerm);
+                
+                return nameMatch || idMatch || codeMatch;
+            });
+        };
+        
+        // Função para exibir resultados da busca
+        const showProductResults = (results, query) => {
+            const $results = $('#product-results');
+            $results.empty();
+            
+            if (!query || query.length < 2) {
+                $results.hide();
+                return;
+            }
+            
+            if (results.length === 0) {
+                $results.html('<div class="autocomplete-item no-results">Nenhum produto encontrado</div>');
+            } else {
+                results.slice(0, 10).forEach(product => {
+                    const $item = $(`
+                        <div class="autocomplete-item" 
+                             data-id="${product.id}"
+                             data-cost-center="${product.costCenter}"
+                             data-account="${product.account}"
+                             data-storable="${product.storable}">
+                            <span>${product.name}</span>
+                            <span class="product-code">#${product.code || product.id}</span>
+                        </div>
+                    `);
+                    
+                    // Destacar o texto da busca no resultado
+                    if (query) {
+                        const regex = new RegExp(`(${query})`, 'gi');
+                        const highlighted = product.name.replace(regex, '<strong>$1</strong>');
+                        $item.find('span:first').html(highlighted);
+                    }
+                    
+                    $results.append($item);
+                });
+            }
+            
+            $results.show();
+        };
+        
+        // Inicialização quando o DOM estiver pronto
+        $(document).ready(function() {
+            // Inicialização
+            initFormValidation();
+            initEventHandlers();
+            loadDraft();
+            
+            // Fecha os resultados ao clicar fora
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.autocomplete').length) {
+                    $('.autocomplete-results').hide();
+                } else {
+                    // Mostra os resultados quando o campo recebe foco
+                    const $input = $(e.target).closest('.autocomplete').find('input');
+                    if ($input.length) {
+                        const field = $input.attr('id');
+                        const query = $input.val();
+                        
+                        if (field === 'item-cost-center') {
+                            const results = searchCostCenters(query);
+                            showResults(results, 'cost-center-results', query);
+                        } else if (field === 'item-account') {
+                            const results = searchAccounts(query);
+                            showResults(results, 'account-results', query);
+                        }
+                    }
+                }
+            });
+            
+            // Máscara para valor monetário
+            $('#item-price').on('keyup', function(e) {
+                let value = $(this).val().replace(/\D/g, '');
+                value = (value / 100).toLocaleString('pt-BR', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                });
+                $(this).val(value);
+            });
+            
+            // Inicialização dos elementos
+            const $productInput = $('#item-product');
+            const $costCenterInput = $('#item-cost-center');
+            const $accountInput = $('#item-account');
+            
+            // Estados dos autocompletes
+            const autocompleteState = {
+                product: {
+                    selectedIndex: -1,
+                    currentResults: [],
+                    isSelected: false
+                },
+                costCenter: {
+                    selectedIndex: -1,
+                    currentResults: [],
+                    isSelected: false
+                },
+                account: {
+                    selectedIndex: -1,
+                    currentResults: [],
+                    isSelected: false
+                }
+            };
+            
+            // Funções de busca
+            const searchCostCenters = (query) => {
+                if (!query) return [];
+                const searchTerm = query.toLowerCase().trim();
+                return state.costCenters.filter(item => 
+                    item.code.toLowerCase().includes(searchTerm) || 
+                    item.name.toLowerCase().includes(searchTerm)
+                );
+            };
+            
+            const searchAccounts = (query) => {
+                if (!query) return [];
+                const searchTerm = query.toLowerCase().trim();
+                return state.accounts.filter(item => 
+                    item.code.toLowerCase().includes(searchTerm) || 
+                    item.name.toLowerCase().includes(searchTerm)
+                );
+            };
+            
+            // Função para exibir resultados
+            const showResults = (results, containerId, query) => {
+                const $results = $(`#${containerId}`);
+                $results.empty();
+                
+                if (results.length === 0) {
+                    $results.html('<div class="autocomplete-item no-results">Nenhum resultado encontrado</div>');
+                } else {
+                    results.slice(0, 10).forEach(item => {
+                        const $item = $(`
+                            <div class="autocomplete-item" 
+                                 data-code="${item.code}"
+                                 data-name="${item.name}">
+                                <strong>${item.code}</strong> - ${item.name}
+                            </div>
+                        `);
+                        $results.append($item);
+                    });
+                }
+                
+                $results.show();
+            };
+            
+            // Limpa a seleção quando o campo recebe foco
+            $productInput.on('focus', function() {
+                if (!isProductSelected) {
+                    const query = $(this).val();
+                    if (query) {
+                        currentResults = searchProducts(query);
+                        showProductResults(currentResults, query);
+                    }
+                } else {
+                    // Se já tem um produto selecionado, mostra todos os resultados
+                    currentResults = [...state.products];
+                    showProductResults(currentResults, '');
+                }
+            });
+            
+            // Configuração dos eventos de digitação
+            $productInput.on('input', function() {
+                const query = $(this).val();
+                autocompleteState.product.currentResults = searchProducts(query);
+                showProductResults(autocompleteState.product.currentResults, query);
+                autocompleteState.product.selectedIndex = -1;
+                autocompleteState.product.isSelected = false;
+                
+                // Se o campo estiver vazio, limpa os campos dependentes
+                if (!query) {
+                    clearDependentFields();
+                }
+            });
+            
+            // Configuração do autocomplete para centro de custo
+            $costCenterInput.on('input', function() {
+                const query = $(this).val();
+                autocompleteState.costCenter.currentResults = searchCostCenters(query);
+                showResults(autocompleteState.costCenter.currentResults, 'cost-center-results', query);
+                autocompleteState.costCenter.selectedIndex = -1;
+                autocompleteState.costCenter.isSelected = false;
+            });
+            
+            // Configuração do autocomplete para conta contábil
+            $accountInput.on('input', function() {
+                const query = $(this).val();
+                autocompleteState.account.currentResults = searchAccounts(query);
+                showResults(autocompleteState.account.currentResults, 'account-results', query);
+                autocompleteState.account.selectedIndex = -1;
+                autocompleteState.account.isSelected = false;
+            });
+            
+            // Navegação com teclado para o campo de produto
+            $productInput.on('keydown', function(e) {
+                const $items = $('#product-results .autocomplete-item:not(.no-results)');
+                
+                // Tecla para baixo
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    autocompleteState.product.selectedIndex = Math.min(autocompleteState.product.selectedIndex + 1, $items.length - 1);
+                    updateSelectedItem($items, autocompleteState.product.selectedIndex);
+                }
+                // Tecla para cima
+                else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    autocompleteState.product.selectedIndex = Math.max(-1, autocompleteState.product.selectedIndex - 1);
+                    updateSelectedItem($items, autocompleteState.product.selectedIndex);
+                }
+                // Tecla Enter
+                else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (autocompleteState.product.selectedIndex >= 0 && autocompleteState.product.selectedIndex < $items.length) {
+                        const productId = $items.eq(autocompleteState.product.selectedIndex).data('id');
+                        const product = autocompleteState.product.currentResults.find(p => p.id == productId);
+                        if (product) {
+                            selectProduct(product);
+                        }
+                    } else {
+                        // Tenta encontrar correspondência exata
+                        const exactMatch = autocompleteState.product.currentResults.find(p => 
+                            p.name.toLowerCase() === $productInput.val().toLowerCase() ||
+                            (p.code && p.code.toLowerCase() === $productInput.val().toLowerCase())
+                        );
+                        
+                        if (exactMatch) {
+                            selectProduct(exactMatch);
+                        }
+                    }
+                }
+                // Tecla Escape
+                else if (e.key === 'Escape') {
+                    $('#product-results').hide();
+                }
+                // Tecla Delete ou Backspace com campo vazio
+                else if ((e.key === 'Delete' || e.key === 'Backspace') && !$productInput.val()) {
+                    clearDependentFields();
+                }
+            });
+            
+            // Navegação com teclado para o campo de centro de custo
+            $costCenterInput.on('keydown', function(e) {
+                const $items = $('#cost-center-results .autocomplete-item:not(.no-results)');
+                
+                // Tecla para baixo
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    autocompleteState.costCenter.selectedIndex = Math.min(autocompleteState.costCenter.selectedIndex + 1, $items.length - 1);
+                    updateSelectedItem($items, autocompleteState.costCenter.selectedIndex);
+                }
+                // Tecla para cima
+                else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    autocompleteState.costCenter.selectedIndex = Math.max(-1, autocompleteState.costCenter.selectedIndex - 1);
+                    updateSelectedItem($items, autocompleteState.costCenter.selectedIndex);
+                }
+                // Tecla Enter
+                else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (autocompleteState.costCenter.selectedIndex >= 0 && autocompleteState.costCenter.selectedIndex < $items.length) {
+                        $items.eq(autocompleteState.costCenter.selectedIndex).trigger('click');
+                    }
+                }
+                // Tecla Escape
+                else if (e.key === 'Escape') {
+                    $('#cost-center-results').hide();
+                }
+            });
+            
+            // Navegação com teclado para o campo de conta contábil
+            $accountInput.on('keydown', function(e) {
+                const $items = $('#account-results .autocomplete-item:not(.no-results)');
+                
+                // Tecla para baixo
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    autocompleteState.account.selectedIndex = Math.min(autocompleteState.account.selectedIndex + 1, $items.length - 1);
+                    updateSelectedItem($items, autocompleteState.account.selectedIndex);
+                }
+                // Tecla para cima
+                else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    autocompleteState.account.selectedIndex = Math.max(-1, autocompleteState.account.selectedIndex - 1);
+                    updateSelectedItem($items, autocompleteState.account.selectedIndex);
+                }
+                // Tecla Enter
+                else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (autocompleteState.account.selectedIndex >= 0 && autocompleteState.account.selectedIndex < $items.length) {
+                        $items.eq(autocompleteState.account.selectedIndex).trigger('click');
+                    }
+                }
+                // Tecla Escape
+                else if (e.key === 'Escape') {
+                    $('#account-results').hide();
+                }
+            });
+            
+            // Handle autocomplete item selection
+            $(document).on('click', '.autocomplete-item:not(.no-results)', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const $item = $(this);
+                const $parent = $item.closest('.autocomplete');
+                const $input = $parent.find('input');
+                const field = $input.attr('id');
+                
+                if (field === 'item-product') {
+                    const productId = $item.data('id');
+                    const product = state.products.find(p => p.id == productId);
+                    if (product) {
+                        selectProduct(product);
+                    }
+                } else if (field === 'item-cost-center') {
+                    const code = $item.data('code');
+                    const name = $item.data('name');
+                    $input.val(`${code} - ${name}`);
+                    autocompleteState.costCenter.isSelected = true;
+                    $input.addClass('is-valid');
+                    $('#item-account').focus();
+                } else if (field === 'item-account') {
+                    const code = $item.data('code');
+                    const name = $item.data('name');
+                    $input.val(`${code} - ${name}`);
+                    autocompleteState.account.isSelected = true;
+                    $input.addClass('is-valid');
+                    $('#item-quantity').focus();
+                }
+                
+                // Hide results after selection and trigger change event
+                $('.autocomplete-results').hide();
+                $input.trigger('change');
+            });
+            
+            // Initialize product selection state
+            let isProductSelected = false;
+            
+            $productInput.on('input', function() {
+                if (!$(this).val() && isProductSelected) {
+                    clearDependentFields();
+                    isProductSelected = false;
+                }
+            });
+            function selectProduct(product) {
+                if (!product) return;
+                
+                $productInput.val(product.name);
+                
+                // Preenche o centro de custo com o valor do produto
+                const costCenter = state.costCenters.find(cc => cc.code === product.costCenter);
+                if (costCenter) {
+                    $costCenterInput.val(`${costCenter.code} - ${costCenter.name}`);
+                    autocompleteState.costCenter.isSelected = true;
+                }
+                
+                // Preenche a conta contábil com o valor do produto
+                const account = state.accounts.find(acc => acc.code === product.account);
+                if (account) {
+                    $accountInput.val(`${account.code} - ${account.name}`);
+                    autocompleteState.account.isSelected = true;
+                }
+                
+                // Define o valor correto do campo Estocável
+                const storableValue = product.storable ? 'true' : 'false';
+                $('#item-storable').val(storableValue);
+                
+                $('#item-unit').val(product.unit || 'UN'); // Define a unidade do produto
+                
+                // Desabilita campos que são definidos pelo produto
+                $('#item-storable, #item-unit').prop('disabled', true);
+                
+                // Adiciona classe para indicar que o campo está preenchido
+                $productInput.addClass('is-valid');
+                
+                // Esconde os resultados e foca no próximo campo
+                $('.autocomplete-results').hide();
+                $('#item-quantity').focus();
+                
+                // Atualiza o estado
+                isProductSelected = true;
+                autocompleteState.product.isSelected = true;
+                autocompleteState.product.selectedIndex = -1;
+            }
+            
+            // Limpa os campos dependentes
+            function clearDependentFields() {
+                $costCenterInput.val('');
+                $accountInput.val('');
+                $('#item-storable').val('').prop('disabled', false);
+                $('#item-unit').val('').prop('disabled', false);
+                $productInput.removeClass('is-valid');
+                
+                // Reseta os estados
+                isProductSelected = false;
+                autocompleteState.product.isSelected = false;
+                autocompleteState.costCenter.isSelected = false;
+                autocompleteState.account.isSelected = false;
+                
+                // Esconde todos os resultados
+                $('.autocomplete-results').hide();
+            }
+            
+            // Atualiza o item selecionado na lista
+            function updateSelectedItem($items, index) {
+                $items.removeClass('active');
+                if (index >= 0) {
+                    const $selectedItem = $items.eq(index).addClass('active');
+                    $selectedItem[0].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                    
+                    // Atualiza o campo com o item selecionado durante a navegação
+                    const product = currentResults[index];
+                    if (product) {
+                        $productInput.val(product.name);
+                    }
+                }
+            }
+            
+            // Inicialização finalizada
+            console.log('Aplicação inicializada com sucesso!');
+            function formatCurrency(value) {
+                return value.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'});
+            }
+
+            function updateItemsTable() {
+                const tbody = $('#items-tbody');
+                tbody.empty();
+                
+                if (items.length === 0) {
+                    tbody.append('<tr><td colspan="6" class="text-center">Nenhum item adicionado</td></tr>');
+                } else {
+                    items.forEach((item, index) => {
+                        const total = item.quantity * item.price;
+                        tbody.append(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${item.name}</td>
+                                <td>${item.quantity} ${item.unit}</td>
+                                <td>${formatCurrency(item.price)}</td>
+                                <td>${formatCurrency(total)}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary edit-item" data-index="${index}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger remove-item" data-index="${index}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `);
+                    });
+                }
+
+                // Atualiza o total
+                const total = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+                $('#total-amount').text(formatCurrency(total));
+            }
+
+            // Event Listeners
+            $('#add-item-btn').click(() => {
+                $('#item-form')[0].reset();
+                $('#item-quantity').val(1);
+                $('#item-unit').val('un');
+                editIndex = -1;
+                $('#itemModalLabel').text('Adicionar Item');
+                modal.show();
+            });
+
+            $(document).on('click', '.edit-item', function() {
+                editIndex = $(this).data('index');
+                const item = items[editIndex];
+                $('#item-name').val(item.name);
+                $('#item-quantity').val(item.quantity);
+                $('#item-unit').val(item.unit);
+                $('#item-price').val(item.price.toFixed(2).replace('.', ','));
+                $('#item-link').val(item.link || '');
+                $('#item-notes').val(item.notes || '');
+                $('#itemModalLabel').text('Editar Item');
+                modal.show();
+            });
+
+            $(document).on('click', '.remove-item', function() {
+                if (confirm('Tem certeza que deseja remover este item?')) {
+                    items.splice($(this).data('index'), 1);
+                    updateItemsTable();
+                }
+            });
+
+            $('#save-item').click(() => {
+                const item = {
+                    name: $('#item-name').val(),
+                    quantity: parseFloat($('#item-quantity').val()),
+                    unit: $('#item-unit').val(),
+                    price: parseFloat($('#item-price').val().replace(/\./g, '').replace(',', '.')),
+                    link: $('#item-link').val(),
+                    notes: $('#item-notes').val()
+                };
+
+                if (!item.name || isNaN(item.quantity) || isNaN(item.price)) {
+                    alert('Por favor, preencha todos os campos obrigatórios corretamente.');
+                    return;
+                }
+
+                if (editIndex >= 0) {
+                    items[editIndex] = item;
+                } else {
+                    items.push(item);
+                }
+
+                updateItemsTable();
+                modal.hide();
+            });
+
+            $('.close, .btn-light[data-dismiss="modal"]').click(() => modal.hide());
+            
+            // Fechar modal ao clicar fora
+            $(window).click((e) => { if (e.target === modal[0]) modal.hide(); });
+        });
+    </script>
+</body>
+</html>

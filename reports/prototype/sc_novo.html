@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>SC • DAE Jundiaí</title>
+
+  <!-- Fluig (oficial) -->
+  <link rel="stylesheet" href="https://fluig.totvs.com/style-guide/css/fluig-style-guide.min.css">
+  <link rel="stylesheet" href="./style-guide/css/fluig-style-guide-select.min.css">
+  <script src="https://fluig.totvs.com/portal/resources/js/jquery/jquery.js"></script>
+  <script src="https://fluig.totvs.com/portal/resources/js/jquery/jquery-ui.min.js"></script>
+  <script src="./js/vcXMLRPC.js"></script>
+  <script src="https://fluig.totvs.com/style-guide/js/fluig-style-guide.min.js"></script>
+  <script src="./js/forms.js"></script>
+  <script src="./js/wdkdetail.js"></script>
+  <script src="./style-guide/js/fluig-style-guide-select.min.js"></script>
+  <script src="./style-guide/js/fluig-style-guide-richeditor.min.js"></script>
+  
+  <style>
+    /* =========================
+       Tema DAE — escopo .vf-sc
+       ========================= */
+    .vf-sc {
+      --dae-primary:  #0067B1;
+      --dae-primary-600: #005892;
+      --dae-primary-50:  #e6f2fb;
+      --dae-secondary: #F37021;
+      --dae-secondary-700:#c65b1b;
+      --dae-ink:      #1f2937;
+      --dae-muted:    #6b7280;
+      --dae-border:   #e5e7eb;
+      --dae-ok:       #15803d;
+      --dae-warn:     #b91c1c;
+    }
+
+    /* Barra superior (branding) */
+    .vf-sc .brandbar {
+      background: linear-gradient(90deg, var(--dae-primary) 0%, var(--dae-primary-600) 100%);
+      color: #fff;
+      padding: 12px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-radius: 8px; margin: 10px 0 18px;
+    }
+    .vf-sc .brandbar .brand-left { display:flex; align-items:center; gap:12px; }
+
+    /* FIX da logo: badge branco + tamanho consistente */
+    .vf-sc .brand-logo-wrap{
+      background:#fff; border-radius:6px; padding:6px 10px;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 1px 2px rgba(0,0,0,.08);
+    }
+    .vf-sc .brand-logo{
+      height:36px; width:auto; display:block;
+      image-rendering:-webkit-optimize-contrast;
+      max-width: 180px;
+    }
+    .vf-sc .brandbar .subtitle { opacity:.9; font-size:12px; }
+
+    /* Painéis */
+    .vf-sc .panel { border-radius: 8px; border-color: var(--dae-border); }
+    .vf-sc .panel-heading {
+      background: var(--dae-primary-50);
+      border-bottom: 1px solid var(--dae-border);
+      color: var(--dae-ink);
+      border-top-left-radius: 8px; border-top-right-radius: 8px;
+    }
+    .vf-sc .panel-heading h3 { color: var(--dae-primary-600); }
+    .vf-sc .panel-heading strong { color: var(--dae-primary-600); }
+
+    /* Campos e labels */
+    .vf-sc .required:after { content:" *"; color: var(--dae-warn); }
+    .vf-sc .form-control:focus { box-shadow: 0 0 0 3px rgba(0,103,177,.15); border-color: var(--dae-primary); }
+
+    /* Tabela de itens */
+    .vf-sc .table thead th {
+      background: var(--dae-primary-50);
+      color: var(--dae-ink);
+      border-bottom: 1px solid var(--dae-border);
+      white-space: nowrap;
+    }
+    .vf-sc .table tbody td { vertical-align: middle; }
+    .vf-sc .w-110 { width:110px; } .vf-sc .w-80{width:80px;}
+
+    /* Botões de ação do painel */
+    .vf-sc .btn-add {
+      background: var(--dae-secondary);
+      border-color: var(--dae-secondary); color: #fff;
+    }
+    .vf-sc .btn-add:hover { background: var(--dae-secondary-700); border-color: var(--dae-secondary-700); color:#fff; }
+    .vf-sc .icon-btn { cursor:pointer; }
+
+    /* Alertas/ajuda */
+    .vf-sc .help { color: var(--dae-muted); font-size: 12px; margin-top:6px; }
+  </style>
+
+  <!-- ===== CSS específico do painel (escopado) ===== -->
+  <style>
+    /* Grupo de decisão como botões */
+    .vf-decisao-group{
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .vf-decisao-group input[type="radio"]{
+      position:absolute; opacity:0; width:0; height:0; /* acessível via label */
+    }
+    .vf-decisao{
+      padding:10px 14px; border:1px solid var(--dae-border); border-radius:8px;
+      background:#fff; color:var(--dae-ink); cursor:pointer; user-select:none;
+      display:inline-flex; align-items:center; gap:8px; transition:.15s ease;
+    }
+    .vf-decisao:hover{ box-shadow:0 1px 3px rgba(0,0,0,.08); }
+    /* Estados selecionados (usa input:checked + label) */
+    #decisao_aprovar:checked + label.vf-approve{
+      background: var(--dae-ok); border-color: var(--dae-ok); color:#fff;
+    }
+    #decisao_reprovar:checked + label.vf-reprove{
+      background: var(--dae-warn); border-color: var(--dae-warn); color:#fff;
+    }
+  </style>  
+
+  <!-- ===== CSS (escopado) ===== -->
+  <style>
+    .vf-timeline .vf-tl-list{
+      list-style:none; margin:0; padding:0 0 0 14px; position:relative;
+      border-left:2px solid var(--dae-border);
+    }
+    .vf-timeline .vf-tl-item{
+      position:relative; margin:0 0 14px 0; padding-left:10px;
+    }
+    .vf-timeline .vf-tl-marker{
+      position:absolute; left:-10px; top:2px;
+      width:18px; height:18px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      background:#fff; border:2px solid var(--dae-border);
+    }
+    .vf-timeline .vf-tl-content{
+      background:#fff; border:1px solid var(--dae-border); border-radius:8px;
+      padding:10px 12px;
+    }
+    .vf-timeline .vf-tl-row{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+    }
+    .vf-timeline .vf-tl-row strong{ color:var(--dae-ink); }
+    .vf-timeline .vf-tl-date{ color:var(--dae-muted); font-size:12px; white-space:nowrap; }
+    .vf-timeline .vf-tl-meta{ color:var(--dae-ink); font-size:13px; margin-top:2px; }
+    .vf-timeline .vf-tl-note{
+      margin-top:6px; font-size:12px; color:#374151; background:var(--dae-primary-50);
+      border-left:3px solid var(--dae-primary-600); padding:6px 8px; border-radius:4px;
+    }
+    /* Cores por status */
+    .vf-timeline .vf-st-aprovado   .vf-tl-marker{ border-color:var(--dae-ok);   }
+    .vf-timeline .vf-st-reprovado  .vf-tl-marker{ border-color:var(--dae-warn); }
+    .vf-timeline .vf-st-pendente   .vf-tl-marker{ border-color:var(--dae-muted);}
+    .vf-timeline .vf-st-cancelado  .vf-tl-marker{ border-color:#9ca3af; }
+    .vf-timeline .vf-st-aprovado   .vf-tl-content{ border-color:rgba(21,128,61,.35); }
+    .vf-timeline .vf-st-reprovado  .vf-tl-content{ border-color:rgba(185,28,28,.35); }
+  </style>
+
+</head>
+
+<body class="fluig-style-guide">
+  <form name="form" role="form">
+    <div class="container-fluid vf-sc">
+
+      <!-- BRAND BAR -->
+      <div class="brandbar" role="banner" aria-label="DAE Jundiaí">
+        <div class="brand-left">
+          <span class="brand-logo-wrap">
+            <!-- Use caminho local se preferir (ex.: images/logo-dae.png) -->
+            <img class="brand-logo"
+                src="https://daejundiai.com.br/wp-content/uploads/2021/02/logo-dae-1.png"
+                alt="DAE Jundiaí"
+                decoding="async"
+                onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%2240%22 viewBox=%270 0 180 40%27&gt;&lt;rect width=%22100%25%22 height=%22100%25%22 rx=%226%22 fill=%22%23ffffff%22/&gt;&lt;text x=%2210%22 y=%2726%27 font-family=%27Arial%27 font-size=%2720%27 fill=%27%230067B1%27&gt;DAE Jundia%C3%AD&lt;/text&gt;&lt;/svg&gt;';">
+          </span>
+          <div>
+            <div><strong>Solicitação de Compras (SC)</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel: Cabeçalho -->
+      <div class="panel panel-default">
+        <div class="panel-heading">          
+          <h3 class="panel-title" style="font-weight: bold;">
+            <a class="collapse-icon up" data-toggle="collapse" data-parent="#accordion" href="#panelCollapse_1">
+              <span class="flaticon flaticon-add-shop icon-sm"></span>&nbsp;Solicitação de Compras</a>
+          </h3>
+        </div>
+        <div id="panelCollapse_1" class="panel-collapse collapse in">
+
+          <div class="panel-body">
+
+              <!-- Painel: Cabeçalho -->
+              <div class="panel panel-default">
+                <div class="panel-heading"><strong>Dados da SC</strong></div>
+                <div class="panel-body">
+                  <!-- NOVA LINHA: Nº SC, Solicitante, Data/Hora -->
+                  <div class="row form-group">
+                    <!-- Data/Hora (ro) -->
+                    <div class="col-md-2">
+                      <label for="dataHoraSolic">Data/Hora da Solicitação</label>
+                      <input type="text" class="form-control" id="dataHoraSolic" name="dataHoraSolic"
+                            placeholder="preenchido automaticamente" readonly>
+                    </div>
+                    <!-- Solicitante (ro) -->
+                    <div class="col-md-8">
+                      <label for="solicitanteNome">Solicitante</label>
+                      <input type="text" class="form-control" id="solicitanteNome" name="solicitanteNome"
+                            placeholder="preenchido automaticamente" readonly>
+                    </div>
+                    <!-- Nº da SC (ro, preenchido após integração) -->
+                    <div class="col-md-2">
+                      <label for="nrSC">Nº da SC</label>
+                      <input type="text" class="form-control" id="nrSC" name="nrSC"
+                            placeholder="gerado após inclusão no Protheus" readonly>
+                    </div>
+                  </div>
+
+                  <!-- LINHA ORIGINAL: Unidade, Comprador, Filial -->
+                  <div class="row form-group">
+                    <!-- Unidade do Requisitante -->
+                    <div class="col-md-4">
+                      <label for="unidRequis" class="required">Unidade do Requisitante</label>
+                      <input type="zoom" class="form-control" id="unidRequis" name="unidRequis" zoomvalue="codigo" data-zoom="
+                        { 'datasetId':'ds_protheus_unidadeRequis','displayKey':'descricao','placeholder':'Selecione...',
+                          'fields':[{'field':'codigo','label':'Código','visible':'false'},{'field':'descricao','label':'Descrição','standard':true}] }">
+                      <input type="hidden" id="hidden_unidRequis" name="hidden_unidRequis">
+                    </div>
+
+                    <!-- Comprador -->
+                    <div class="col-md-4">
+                      <label for="codComprador" class="required">Comprador</label>
+                      <input type="zoom" class="form-control" id="codComprador" name="codComprador" zoomvalue="codigo" data-zoom="
+                        { 'datasetId':'ds_protheus_comprador','displayKey':'nome','placeholder':'Selecione...',
+                          'fields':[{'field':'codigo','label':'Código','visible':'false'},{'field':'nome','label':'Nome','standard':true}] }">
+                      <input type="hidden" id="hidden_codComprador" name="hidden_codComprador">
+                    </div>
+
+                    <!-- Filial de Entrega -->
+                    <div class="col-md-4">
+                      <label for="filialEntrega" class="required">Filial de Entrega</label>
+                      <input type="zoom" class="form-control" id="filialEntrega" name="filialEntrega" zoomvalue="codigo" data-zoom="
+                        { 'datasetId':'ds_protheus_filialEntrega','displayKey':'descricao','placeholder':'Selecione...',
+                          'fields':[{'field':'codigo','label':'Código','visible':'false'},{'field':'descricao','label':'Descrição','standard':true}] }">
+                      <input type="hidden" id="hidden_filialEntrega" name="hidden_filialEntrega">
+                    </div>
+                  </div>
+
+                  <!-- LINHA ORIGINAL: Justifiativa -->
+                  <div class="row form-group">
+                    <!-- Unidade do Requisitante -->
+                    <div class="col-md-12">
+                      <label for="justificativaSC" class="required">Justificativa</label>
+                      <textarea class="form-control" id="justificativaSC" name="justificativaSC" rows="3"
+                                placeholder="Descreva a justificativa para a solicitação de compras"></textarea>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+                  <div class="help">Preencha os três campos acima antes de incluir itens.</div>
+
+                  <!-- Painel: Itens -->
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <div class="row">
+                    <div class="col-sm-6"><strong>Itens da SC</strong></div>
+                    <div class="col-sm-6 text-right">
+                      <button type="button" class="btn btn-add btn-sm" onclick="wdkAddChild('tbItens')">
+                        <span class="fluigicon fluigicon-plus icon-sm"></span> Adicionar item
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-body">
+                  <div class="table-responsive">
+                    <table id="tbItens" tablename="tbItens" class="table table-condensed table-striped" customFnDelete="fnCustomDelete(this)">
+                      <thead>
+                        <tr>
+                          <th class="required">Produto</th>
+                          <th class="w-150">Descrição</th>
+                          <th class="w-80">UND</th>
+                          <th class="required">Conta Contábil</th>
+                          <th class="required">Centro de Custo</th>
+                          <th class="w-110">Armazém</th>
+                          <th class="required w-110">Quantidade</th>
+                          <th class="w-80"></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <!-- Linha modelo Pai-x-Filho -->
+                        <tr style="display:none" detail="true" detailname="tbItens">
+                          <!-- Produto (zoom) -->
+                          <td>
+                            <input type="zoom" class="form-control" id="produto" name="produto" zoomvalue="codigo" data-zoom="
+                              { 'datasetId':'ds_protheus_produto','displayKey':'descricao','placeholder':'Pesquisar produto...',
+                                'fields':[
+                                  {'field':'codigo','label':'Código','visible':'false'},
+                                  {'field':'descricao','label':'Descrição','standard':true},
+                                  {'field':'unidade','label':'UM'},
+                                  {'field':'contaContabil','label':'Conta'},
+                                  {'field':'centroCusto','label':'CC'},
+                                  {'field':'armazem','label':'Armazém'}
+                                ] }">
+                            <input type="hidden" id="hidden_produto" name="hidden_produto">
+                          </td>
+
+                          <!-- Descrição (ro) -->
+                          <td><input type="text" class="form-control" id="descricao" name="descricao" readonly></td>
+
+                          <!-- UM (ro) -->
+                          <td><input type="text" class="form-control" id="unidade" name="unidade" readonly></td>
+
+                          <!-- Conta Contábil (zoom editável) -->
+                          <td>
+                            <input type="zoom" class="form-control" id="contaContabil" name="contaContabil" zoomvalue="codigo" data-zoom="
+                              { 'datasetId':'ds_protheus_contaContabil','displayKey':'descricao','placeholder':'Selecione...',
+                                'fields':[{'field':'codigo','label':'Código','visible':'false'},{'field':'descricao','label':'Descrição','standard':true}] }">
+                            <input type="hidden" id="hidden_contaContabil" name="hidden_contaContabil">
+                          </td>
+
+                          <!-- Centro de Custo (zoom editável) -->
+                          <td>
+                            <input type="zoom" class="form-control" id="centroCusto" name="centroCusto" zoomvalue="codigo" data-zoom="
+                              { 'datasetId':'ds_protheus_centroCusto','displayKey':'descricao','placeholder':'Selecione...',
+                                'fields':[{'field':'codigo','label':'Código','visible':'false'},{'field':'descricao','label':'Descrição','standard':true}] }">
+                            <input type="hidden" id="hidden_centroCusto" name="hidden_centroCusto">
+                          </td>
+
+                          <!-- Armazém (ro) -->
+                          <td><input type="text" class="form-control" id="armazem" name="armazem" readonly></td>
+
+                          <!-- Quantidade -->
+                          <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="0.001" step="0.001" placeholder="0,000"></td>
+
+                          <!-- Remover -->
+                          <td class="text-center">
+                            <span class="fluigicon fluigicon-trash icon-sm icon-btn" title="Remover" onclick="fnWdkRemoveChild(this)"></span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <p class="help">
+                    Regras (protótipo): Cabeçalho completo + ≥ 1 item válido. Item válido = Produto, Descrição/UM (auto), Conta, CC, Armazém e Quantidade > 0.
+                  </p>
+                </div>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================
+          Painel de Aprovação (novo)
+          ========================= -->
+      <div class="panel panel-default" id="panelAprovacao">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="font-weight: bold;">
+            <a class="collapse-icon up" data-toggle="collapse" data-parent="#accordion" href="#panelCollapse_2">
+              <span class="flaticon flaticon-document-approved icon-sm"></span>&nbsp;Alçada de Aprovação - Gerência</a>
+          </h3>
+        </div>
+        <div id="panelCollapse_2" class="panel-collapse collapse in">
+          <div class="panel-body">
+            <!-- 1ª linha: data/hora, aprovador, cargo -->
+            <div class="row" style="margin-bottom:10px;">
+              <div class="col-md-3">
+                <label for="dataHoraAprov">Data/Hora da aprovação</label>
+                <input type="text" class="form-control" id="dataHoraAprov" name="dataHoraAprov"
+                      placeholder="preenchido automaticamente" readonly>
+              </div>
+              <div class="col-md-6">
+                <label for="aprovadorNome">Aprovador</label>
+                <input type="text" class="form-control" id="aprovadorNome" name="aprovadorNome"
+                      placeholder="preenchido automaticamente" readonly>
+              </div>
+              <div class="col-md-3">
+                <label for="aprovadorCargo">Cargo/Função</label>
+                <input type="text" class="form-control" id="aprovadorCargo" name="aprovadorCargo"
+                      placeholder="preenchido automaticamente" readonly>
+              </div>
+            </div>
+
+            <!-- Decisão em formato de "toggle buttons" -->
+            <div class="row" style="margin-bottom:10px;">
+              <div class="col-md-12">
+                <label id="lblDecisao" class="required">Decisão</label>
+                <div class="vf-decisao-group" role="radiogroup" aria-labelledby="lblDecisao">
+                  <!-- Importante: input vem antes do label para o seletor CSS :checked + label funcionar -->
+                  <input type="radio" id="decisao_aprovar" name="decisao" value="APROVAR" required>
+                  <label for="decisao_aprovar" class="vf-decisao vf-approve">
+                    <span class="fluigicon fluigicon-check icon-sm" aria-hidden="true"></span> Aprovar
+                  </label>
+
+                  <input type="radio" id="decisao_reprovar" name="decisao" value="REPROVAR" required>
+                  <label for="decisao_reprovar" class="vf-decisao vf-reprove">
+                    <span class="fluigicon fluigicon-remove icon-sm" aria-hidden="true"></span> Reprovar
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Justificativa (obrigatória apenas se "Reprovar") -->
+            <div class="row">
+              <div class="col-md-12">
+                <label for="justificativaAprov" id="lblJustAprov">Justificativa</label>
+                <textarea class="form-control" id="justificativaAprov" name="justificativaAprov"
+                          rows="3" placeholder="Obrigatória em caso de reprovação"></textarea>
+              </div>
+            </div>
+
+            <p class="help" style="margin-top:6px;">
+              Preencha a decisão e finalize a tarefa no Fluig para registrar a aprovação.
+            </p>
+          </div>
+        </div>
+      </div>
+
+          <!-- ==============================
+     TIMELINE DE APROVAÇÕES (protótipo)
+     Cole acima do painel de aprovação
+     ============================== -->
+      <div class="panel panel-default vf-timeline">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="font-weight: bold;">
+            <a class="collapse-icon up" data-toggle="collapse" data-parent="#accordion" href="#panelCollapse_3">
+              <span class="flaticon flaticon-change-history icon-sm"></span>&nbsp;Histórico de Aprovações</a>
+          </h3>
+        </div>
+        <div id="panelCollapse_3" class="panel-collapse collapse in">
+          <div class="panel-body">
+            <ol class="vf-tl-list">
+              <!-- EXEMPLO 1 -->
+              <li class="vf-tl-item vf-st-aprovado">
+                <div class="vf-tl-marker"><span class="fluigicon fluigicon-check icon-sm"></span></div>
+                <div class="vf-tl-content">
+                  <div class="vf-tl-row">
+                    <strong>Nível 1 — Compras</strong>
+                    <span class="vf-tl-date">17/08/2025 10:12</span>
+                  </div>
+                  <div class="vf-tl-meta">Ana Souza • Comprador</div>
+                  <div class="vf-tl-note">Cotação dentro do budget.</div>
+                </div>
+              </li>
+
+              <!-- EXEMPLO 2 -->
+              <li class="vf-tl-item vf-st-reprovado">
+                <div class="vf-tl-marker"><span class="fluigicon fluigicon-remove icon-sm"></span></div>
+                <div class="vf-tl-content">
+                  <div class="vf-tl-row">
+                    <strong>Nível 2 — Gestor</strong>
+                    <span class="vf-tl-date">17/08/2025 11:05</span>
+                  </div>
+                  <div class="vf-tl-meta">Carlos Lima • Gestor de Operações</div>
+                  <div class="vf-tl-note">Reprovado por falta de centro de custo correto.</div>
+                </div>
+              </li>
+
+              <!-- EXEMPLO 3 -->
+              <li class="vf-tl-item vf-st-pendente">
+                <div class="vf-tl-marker"><span class="fluigicon fluigicon-time icon-sm"></span></div>
+                <div class="vf-tl-content">
+                  <div class="vf-tl-row">
+                    <strong>Nível 3 — Diretoria</strong>
+                    <span class="vf-tl-date">Pendente</span>
+                  </div>
+                  <div class="vf-tl-meta">—</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </div>  
+      </div>
+
+    </div>
+
+  </form>
+
+  <script>
+    /* ===== Preenchimento automático (Zoom) ===== */
+    function setSelectedZoomItem(item){
+      if (!item || !item.inputId) return;
+
+      // Produto em Pai x Filho
+      if (item.inputId.indexOf("produto___") === 0 || item.inputId === "produto") {
+        var idx = getIdx(item.inputId, "produto");
+        setVal("descricao___"+idx, item.descricao || "");
+        setVal("unidade___"+idx,   item.unidade   || "");
+        setVal("armazem___"+idx,   item.armazem   || "");
+
+        // Pré-preencher Conta/CC (usuário pode trocar)
+        if (item.contaContabil) safeSetZoomValue("contaContabil___"+idx, { codigo:item.contaContabil, descricao:item.contaContabil });
+        if (item.centroCusto)   safeSetZoomValue("centroCusto___"+idx,   { codigo:item.centroCusto,   descricao:item.centroCusto   });
+      }
+    }
+
+    function removedZoomItem(item){
+      if (!item || !item.inputId) return;
+
+      if (item.inputId.indexOf("produto___") === 0 || item.inputId === "produto") {
+        var idx = getIdx(item.inputId, "produto");
+        setVal("descricao___"+idx, ""); setVal("unidade___"+idx, ""); setVal("armazem___"+idx, "");
+        clearZoomFallback("contaContabil___"+idx); clearZoomFallback("centroCusto___"+idx);
+      }
+    }
+
+    /* ===== Utilitários Pai x Filho ===== */
+    function getIdx(inputId){ var p = String(inputId).split("___"); return p.length>1 ? p[1] : ""; }
+    function setVal(fieldId, value){ var $el = $("#"+fieldId); if($el.length){ $el.val(value); } }
+
+    function safeSetZoomValue(zoomId,obj){
+      try{ var z=window[zoomId]; if(z && typeof z.setValue==="function"){ z.setValue({'codigo':obj.codigo,'descricao':obj.descricao}); return; } }catch(e){}
+      $("#"+zoomId).val(obj.descricao || obj.codigo || ""); $("#hidden_"+zoomId).val(obj.codigo || "");
+    }
+    function clearZoomFallback(zoomId){
+      try{ var z=window[zoomId]; if(z && typeof z.clear==="function"){ z.clear(); return; } }catch(e){}
+      $("#"+zoomId).val(""); $("#hidden_"+zoomId).val("");
+    }
+    function fnCustomDelete(el){ fnWdkRemoveChild(el); }
+
+    /* ===== Protótipo: preencher Data/Hora ao abrir (no Fluig real, pode vir do displayFields) ===== */
+    (function initHeader(){
+      var el = document.getElementById('dataHoraSolic');
+      if (el && !el.value) {
+        var now = new Date();
+        var p = n => String(n).padStart(2,'0');
+        el.value = p(now.getDate())+'/'+p(now.getMonth()+1)+'/'+now.getFullYear()+' '+p(now.getHours())+':'+p(now.getMinutes());
+      }
+    })();
+  </script>
+  
+    <!-- ===== JS do painel ===== -->
+  <script>
+    (function initAprovacao(){
+      // Preenche Data/Hora da aprovação se estiver vazio (protótipo)
+      var el = document.getElementById('dataHoraAprov');
+      if (el && !el.value){
+        var now = new Date(), p=n=>String(n).padStart(2,'0');
+        el.value = p(now.getDate())+'/'+p(now.getMonth()+1)+'/'+now.getFullYear()
+                + ' ' + p(now.getHours())+':'+p(now.getMinutes());
+      }
+
+      // Regra: justificativa obrigatória somente se Reprovar
+      var radios = document.querySelectorAll('input[name="decisao"]');
+      var txt = document.getElementById('justificativaAprov');
+      var lbl = document.getElementById('lblJustAprov');
+
+      function toggleReq(){
+        var reprovar = document.getElementById('decisao_reprovar').checked;
+        if (reprovar){
+          txt.setAttribute('required','required');
+          lbl.classList.add('required');
+        } else {
+          txt.removeAttribute('required');
+          lbl.classList.remove('required');
+        }
+      }
+      Array.prototype.forEach.call(radios, function(r){ r.addEventListener('change', toggleReq); });
+      toggleReq();
+    })();
+  </script>
+
+  <!-- ===== JS ===== -->
+  <script>
+    // Chame vfRenderTimelineAprovacoes(window.VF_APROVACOES || []);
+    // Estrutura esperada por item:
+    // { nivel: 1, etapa: "Aprovação Compras", aprovador: "Fulano", cargo: "Comprador",
+    //   decisao: "APROVADO"|"REPROVADO"|"PENDENTE"|"CANCELADO",
+    //   dataHora: "2025-08-17T14:35:00-03:00" ou "17/08/2025 14:35",
+    //   justificativa: "texto opcional" }
+
+    function vfRenderTimelineAprovacoes(eventos){
+      var list = document.getElementById('vfTlList');
+      var empty = document.getElementById('vfTlEmpty');
+      list.innerHTML = '';
+
+      if(!eventos || !eventos.length){
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+
+      // Ordena por data/hora (asc)
+      eventos = eventos.slice().sort(function(a,b){
+        return new Date(a.dataHora) - new Date(b.dataHora);
+      });
+
+      eventos.forEach(function(ev){
+        var st = (ev.decisao || 'PENDENTE').toString().toLowerCase();
+        var icon = iconByStatus(st);
+
+        var li = document.createElement('li');
+        li.className = 'vf-tl-item vf-st-' + st;
+
+        li.innerHTML =
+          '<div class="vf-tl-marker"><span class="fluigicon '+icon+' icon-sm" aria-hidden="true"></span></div>'+
+          '<div class="vf-tl-content">'+
+            '<div class="vf-tl-row">'+
+              '<strong>' + esc(ev.etapa || ('Nível ' + (ev.nivel != null ? ev.nivel : ''))) + '</strong>'+
+              '<span class="vf-tl-date">' + esc(fmtData(ev.dataHora)) + '</span>'+
+            '</div>'+
+            '<div class="vf-tl-meta">' + esc(ev.aprovador || '') + (ev.cargo ? ' • ' + esc(ev.cargo) : '') + '</div>'+
+            (ev.justificativa ? '<div class="vf-tl-note">'+ esc(ev.justificativa) +'</div>' : '')+
+          '</div>';
+
+        list.appendChild(li);
+      });
+    }
+
+    function iconByStatus(st){
+      if(st === 'aprovado')  return 'fluigicon-check';
+      if(st === 'reprovado') return 'fluigicon-remove';
+      if(st === 'cancelado') return 'fluigicon-trash';
+      return 'fluigicon-time'; // pendente/andamento
+    }
+
+    function fmtData(d){
+      if(!d) return '';
+      try{
+        // aceita ISO ou dd/MM/yyyy HH:mm
+        if(/\d{4}-\d{2}-\d{2}T/.test(d)){ // ISO
+          var dt = new Date(d);
+          var p = function(n){ return String(n).padStart(2,'0'); };
+          return p(dt.getDate())+'/'+p(dt.getMonth()+1)+'/'+dt.getFullYear()+' '+p(dt.getHours())+':'+p(dt.getMinutes());
+        }
+        return d; // já formatado
+      }catch(e){ return d; }
+    }
+
+    function esc(s){
+      return (s||'').toString().replace(/[&<>"']/g, function(c){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]);
+      });
+    }
+
+    // EXEMPLO (remova em produção). Descomente para ver a timeline renderizada.
+    /*
+    vfRenderTimelineAprovacoes([
+      { nivel:1, etapa:"Aprovação Compras", aprovador:"Ana Souza", cargo:"Comprador", decisao:"APROVADO", dataHora:"2025-08-17T09:12:00-03:00", justificativa:"Cotação dentro do budget." },
+      { nivel:2, etapa:"Aprovação Gestor", aprovador:"Carlos Lima", cargo:"Gestor de Operações", decisao:"PENDENTE", dataHora:"2025-08-17T10:00:00-03:00" }
+    ]);
+    */
+  </script>
+</body>
+</html>
