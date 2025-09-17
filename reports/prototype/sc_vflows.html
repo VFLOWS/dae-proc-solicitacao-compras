@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <title>SC • DAE Jundiaí</title>
+  <title>SC • VFLOWS</title>
 
   <!-- Fluig (oficial) -->
   <link rel="stylesheet" href="https://fluig.totvs.com/style-guide/css/fluig-style-guide.min.css">
@@ -18,14 +18,14 @@
   
   <style>
     /* =========================
-       Tema DAE — escopo .vf-sc
+       Tema VFLOWS — escopo .vf-sc
        ========================= */
     .vf-sc {
-      --dae-primary:  #0067B1;
-      --dae-primary-600: #005892;
-      --dae-primary-50:  #e6f2fb;
-      --dae-secondary: #F37021;
-      --dae-secondary-700:#c65b1b;
+      --dae-primary:  #0B132B;  /* Azul escuro VFLOWS */
+      --dae-primary-600: #080e1e; /* Azul mais escuro */
+      --dae-primary-50:  #f8f9fa;  /* Cinza bem claro para painéis */
+      --dae-secondary: #00D494; /* Verde VFLOWS */
+      --dae-secondary-700:#00b37e; /* Verde mais escuro */
       --dae-ink:      #1f2937;
       --dae-muted:    #6b7280;
       --dae-border:   #e5e7eb;
@@ -162,15 +162,15 @@
     <div class="container-fluid vf-sc">
 
       <!-- BRAND BAR -->
-      <div class="brandbar" role="banner" aria-label="DAE Jundiaí">
+      <div class="brandbar" role="banner" aria-label="VFLOWS">
         <div class="brand-left">
           <span class="brand-logo-wrap">
             <!-- Use caminho local se preferir (ex.: images/logo-dae.png) -->
             <img class="brand-logo"
-                src="https://daejundiai.com.br/wp-content/uploads/2021/02/logo-dae-1.png"
-                alt="DAE Jundiaí"
+                src="https://www.vflows.com.br/assets/img/logo.png"
+                alt="VFLOWS"
                 decoding="async"
-                onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%2240%22 viewBox=%270 0 180 40%27&gt;&lt;rect width=%22100%25%22 height=%22100%25%22 rx=%226%22 fill=%22%23ffffff%22/&gt;&lt;text x=%2210%22 y=%2726%27 font-family=%27Arial%27 font-size=%2720%27 fill=%27%230067B1%27&gt;DAE Jundia%C3%AD&lt;/text&gt;&lt;/svg&gt;';">
+                onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%2240%22 viewBox=%270 0 180 40%27&gt;&lt;rect width=%22100%25%22 height=%22100%25%22 rx=%226%22 fill=%22%23ffffff%22/&gt;&lt;text x=%2210%22 y=%2726%27 font-family=%27Arial%27 font-size=%2720%27 font-weight=%27bold%27 fill=%27%2300D494%27&gt;VFLOWS&lt;/text&gt;&lt;/svg&gt;';">
           </span>
           <div>
             <div><strong>Solicitação de Compras (SC)</strong></div>
@@ -279,13 +279,14 @@
                     <table id="tbItens" tablename="tbItens" class="table table-condensed table-striped" customFnDelete="fnCustomDelete(this)">
                       <thead>
                         <tr>
-                          <th class="required">Produto</th>
-                          <th class="w-150">Descrição</th>
+                          <th class="w-80">Codigo</th>
+                          <th class="w-110 required">Produto</th>                          
                           <th class="w-80">UND</th>
-                          <th class="required">Conta Contábil</th>
-                          <th class="required">Centro de Custo</th>
+                          <th class="w-110 required">Conta Contábil</th>
+                          <th class="w-110 required">Centro de Custo</th>
                           <th class="w-110">Armazém</th>
-                          <th class="required w-110">Quantidade</th>
+                          <th class="required w-80">Quantidade</th>
+                          <th class="required w-110">Valor Unitário</th>
                           <th class="w-80"></th>
                         </tr>
                       </thead>
@@ -293,6 +294,9 @@
                         <!-- Linha modelo Pai-x-Filho -->
                         <tr style="display:none" detail="true" detailname="tbItens">
                           <!-- Produto (zoom) -->
+                          <!-- Descrição (ro) -->
+                          <td><input type="text" class="form-control" id="codigo" name="codigo" readonly></td>
+
                           <td>
                             <input type="zoom" class="form-control" id="produto" name="produto" zoomvalue="codigo" data-zoom="
                               { 'datasetId':'ds_protheus_produto','displayKey':'descricao','placeholder':'Pesquisar produto...',
@@ -306,9 +310,6 @@
                                 ] }">
                             <input type="hidden" id="hidden_produto" name="hidden_produto">
                           </td>
-
-                          <!-- Descrição (ro) -->
-                          <td><input type="text" class="form-control" id="descricao" name="descricao" readonly></td>
 
                           <!-- UM (ro) -->
                           <td><input type="text" class="form-control" id="unidade" name="unidade" readonly></td>
@@ -333,7 +334,9 @@
                           <td><input type="text" class="form-control" id="armazem" name="armazem" readonly></td>
 
                           <!-- Quantidade -->
-                          <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="0.001" step="0.001" placeholder="0,000"></td>
+                          <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="1.0" step="1.0" placeholder="0,000"></td>
+
+                          <td><input type="text" class="form-control" id="valorUnitario" name="valorUnitario" mask="9.999.999,00"></td>
 
                           <!-- Remover -->
                           <td class="text-center">
