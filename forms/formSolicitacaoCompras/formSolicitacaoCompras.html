@@ -1,0 +1,471 @@
+<html>
+
+<head>
+  <link type="text/css" rel="stylesheet" href="/style-guide/css/fluig-style-guide.min.css" />
+  <script type="text/javascript" src="/portal/resources/js/jquery/jquery.js"></script>
+  <script type="text/javascript" src="/portal/resources/js/jquery/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="/portal/resources/js/mustache/mustache-min.js"></script>
+  <script type="text/javascript" src="/style-guide/js/fluig-style-guide.min.js" charset="utf-8"></script>
+  <script type="text/javascript" src="/webdesk/vcXMLRPC.js"></script>
+  <link rel="stylesheet" type="text/css" href="/style-guide/css/fluig-style-guide-filter.min.css">
+  <script src="/style-guide/js/fluig-style-guide-filter.min.js"></script>
+
+  <script type="text/javascript" src="common/Util.js"></script>
+  <script type="text/javascript" src="common/jquery.mask.js"></script>
+
+  <script type="text/javascript" src="controllers/ActivityController.js"></script>
+  <script type="text/javascript" src="controllers/FormController.js"></script>
+
+  <script type="text/javascript" src="views/FormView.js"></script>
+
+  <link type="text/css" rel="stylesheet" href="style.css" />
+
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+</head>
+
+<body class="fluig-style-guide">
+  <form name="form" role="form" class="container-fluid">
+    <!-- CAMPOS PADRÕES -->
+    <input type="hidden" name="loginSolicitante" id="loginSolicitante" />
+    <input type="hidden" name="cpfSolicitante" id="cpfSolicitante">
+
+    <!-- Table Histórico -->
+    <table class="table" tablename="tableHistorico" noaddbutton=true nodeletebutton=true hidden>
+      <thead>
+        <tr>
+          <td>Indice</td>
+          <td>Data</td>
+          <td>Nome</td>
+          <td>Painel Historico 1</td>
+          <td>Painel Historico 2</td>
+          <td>Painel Historico 3</td>
+          <td>Painel Historico 4</td>
+          <td>Valores Campos</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr id="rowPainelHistorico">
+          <td><input type="text" id="indiceHistorico" name="indiceHistorico" /></td>
+          <td><input type="text" id="dataHistorico" name="dataHistorico" /></td>
+          <td><input type="text" id="nomeSolicitanteHistorico" name="nomeSolicitanteHistorico" /></td>
+          <td><input type="text" id="painelHistorico1" name="painelHistorico1" /></td>
+          <td><input type="text" id="painelHistorico2" name="painelHistorico2" /></td>
+          <td><input type="text" id="painelHistorico3" name="painelHistorico3" /></td>
+          <td><input type="text" id="painelHistorico4" name="painelHistorico4" /></td>
+          <td><input type="text" id="valuesCamposHistorico" name="valuesCamposHistorico" /></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- / CAMPOS PADRÕES -->
+
+    <!-- ================= CABEÇALHO ==================== -->
+    <div class="container-fluid vf-sc">
+
+      <!-- BRAND BAR -->
+      <div class="brandbar" role="banner" aria-label="DAE Jundiaí">
+        <div class="brand-left">
+          <span class="brand-logo-wrap">
+            <!-- Use caminho local se preferir (ex.: images/logo-dae.png) -->
+            <img class="brand-logo" src="https://daejundiai.com.br/wp-content/uploads/2021/02/logo-dae-1.png"
+              alt="DAE Jundiaí" decoding="async"
+              onerror="this.onerror=null;this.src='data:image/svg+xml;utf8,&lt;svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22180%22 height=%2240%22 viewBox=%270 0 180 40%27&gt;&lt;rect width=%22100%25%22 height=%22100%25%22 rx=%226%22 fill=%22%23ffffff%22/&gt;&lt;text x=%2210%22 y=%2726%27 font-family=%27Arial%27 font-size=%2720%27 fill=%27%230067B1%27&gt;DAE Jundia%C3%AD&lt;/text&gt;&lt;/svg&gt;';">
+          </span>
+          <div>
+            <div><strong>Solicitação de Compras (SC)</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel: Cabeçalho -->
+      <div class="panel panel-default" id="painelSolicitacao">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="font-weight: bold;">
+            <a class="collapse-icon up" data-toggle="collapse" data-parent="#accordion" href="#panelCollapse_1">
+              <span class="flaticon flaticon-add-shop icon-sm"></span>&nbsp;Solicitação de Compras</a>
+          </h3>
+        </div>
+        <div id="panelCollapse_1" class="panel-collapse collapse in">
+
+          <div class="panel-body">
+            <input type="hidden" id="nomeCorrecao" name="nomeCorrecao" value= />
+            <input type="hidden" id="dataCorrecao" name="dataCorrecao" value= />
+
+            <!-- Painel: Cabeçalho -->
+            <div class="panel panel-default">
+              <div class="panel-heading"><strong>Dados da SC</strong></div>
+              <div class="panel-body">
+                <!-- NOVA LINHA: Nº SC, Solicitante, Data/Hora -->
+                <div class="row form-group">
+                  <!-- Data/Hora (ro) -->
+                  <div class="col-md-2">
+                    <label for="dataHoraSolic">Data/Hora da Solicitação</label>
+                    <input type="text" class="form-control" id="dataHoraSolic" name="dataHoraSolic"
+                      placeholder="preenchido automaticamente" readonly>
+                  </div>
+                  <!-- Solicitante (ro) -->
+                  <div class="col-md-8">
+                    <label for="solicitanteNome">Solicitante</label>
+                    <input type="text" class="form-control" id="solicitanteNome" name="solicitanteNome"
+                      placeholder="preenchido automaticamente" readonly>
+                  </div>
+                  <!-- Nº da SC (ro, preenchido após integração) -->
+                  <div class="col-md-2">
+                    <label for="nrSC">Nº da SC</label>
+                    <input type="text" class="form-control" id="nrSC" name="nrSC"
+                      placeholder="gerado após inclusão no Protheus" readonly>
+                  </div>
+                </div>
+
+                <!-- LINHA ORIGINAL: Unidade, Comprador, Filial -->
+                <div class="row form-group">
+                  <!-- Unidade do Requisitante -->
+                  <div class="col-md-4">
+                    <label for="unidRequis" class="required">Unidade do Requisitante</label>
+                    <input type="zoom" class="form-control" id="unidRequis" name="unidRequis" zoomvalue="codigo"
+                      data-zoom=" { 
+                        'datasetId':'ds_protheus_unidadeRequis',
+                        'displayKey':'descricao',
+                        'placeholder':'Selecione...',
+                        'fields':[
+                        { 'field':'codigo',
+                          'label':'Código',
+                          'visible':'false'
+                        },{
+                          'field':'descricao',
+                          'label':'Descrição',
+                          'standard':true
+                        }
+                        ]}">
+                    <input type="hidden" id="hidden_unidRequis" name="hidden_unidRequis">
+                  </div>
+
+                  <!-- Comprador -->
+                  <div class="col-md-4">
+                    <label for="codComprador" class="required">Comprador</label>
+                    <input type="zoom" class="form-control" id="codComprador" name="codComprador" zoomvalue="codigo"
+                      data-zoom="{ 
+                        'datasetId':'ds_protheus_comprador',
+                        'displayKey':'nome',
+                        'placeholder':'Selecione...',
+                        'fields':[
+                        {
+                          'field':'codigo',
+                          'label':'Código',
+                          'visible':'false'
+                        },{
+                          'field':'nome',
+                          'label':'Nome',
+                          'standard':true
+                        }
+                        ]}">
+                    <input type="hidden" id="hidden_codComprador" name="hidden_codComprador">
+                  </div>
+
+                  <!-- Filial de Entrega -->
+                  <div class="col-md-4">
+                    <label for="filialEntrega" class="required">Filial de Entrega</label>
+                    <input type="zoom" class="form-control" id="filialEntrega" name="filialEntrega" zoomvalue="codigo"
+                      data-zoom="{ 
+                        'datasetId':'ds_protheus_filialEntrega',
+                        'displayKey':'descricao',
+                        'placeholder':'Selecione...',
+                        'fields':[
+                        {
+                          'field':'codigo',
+                          'label':'Código',
+                          'visible':'false'
+                        },{
+                          'field':'descricao',
+                          'label':'Descrição',
+                          'standard':true
+                        }
+                        ] }">
+                    <input type="hidden" id="hidden_filialEntrega" name="hidden_filialEntrega">
+                  </div>
+                </div>
+
+                <!-- LINHA ORIGINAL: Justifiativa -->
+                <div class="row form-group">
+                  <!-- Unidade do Requisitante -->
+                  <div class="col-md-12">
+                    <label for="justificativaSC" class="required">Justificativa</label>
+                    <textarea class="form-control" id="justificativaSC" name="justificativaSC" rows="3"
+                      placeholder="Descreva a justificativa para a solicitação de compras"></textarea>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="help">Preencha os três campos acima antes de incluir itens.</div>
+
+            <!-- Painel: Itens -->
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-sm-6"><strong>Itens da SC</strong></div>
+                  <div class="col-sm-6 text-right">
+                    <button type="button" class="btn btn-add btn-sm" onclick="wdkAddChild('tbItens')">
+                      <span class="fluigicon fluigicon-plus icon-sm"></span> Adicionar item
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel-body">
+                <div class="table-responsive">
+                  <table id="tbItens" tablename="tbItens" class="table table-condensed table-striped"
+                    customFnDelete="fnCustomDelete(this)" noaddbutton=true>
+                    <thead>
+                      <tr>
+                        <th class="required">Produto</th>
+                        <th class="w-150">Descrição</th>
+                        <th class="w-80">UND</th>
+                        <th class="required">Conta Contábil</th>
+                        <th class="required">Centro de Custo</th>
+                        <th class="w-110">Armazém</th>
+                        <th class="required w-110">Quantidade</th>
+                        <th class="w-80"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <!-- Linha modelo Pai-x-Filho -->
+                      <tr style="display:none" detail="true" detailname="tbItens">
+                        <!-- Produto (zoom) -->
+                        <td>
+                          <input type="zoom" class="form-control" id="produto" name="produto" zoomvalue="codigo"
+                            data-zoom="{ 
+                              'datasetId':'ds_protheus_produto',
+                              'displayKey':'descricao',
+                              'placeholder':'Pesquisar produto...',
+                              'fields':[
+                                {
+                                  'field':'codigo',
+                                  'label':'Código',
+                                  'visible':'false'
+                                },{
+                                  'field':'descricao',
+                                  'label':'Descrição',
+                                  'standard':true
+                                },{
+                                  'field':'unidade',
+                                  'label':'UM'
+                                },{
+                                  'field':'contaContabil',
+                                  'label':'Conta'
+                                },{
+                                  'field':'centroCusto',
+                                  'label':'CC'
+                                },{
+                                  'field':'armazem',
+                                  'label':'Armazém'
+                                }
+                                ]}">
+                          <input type="hidden" id="hidden_produto" name="hidden_produto">
+                        </td>
+
+                        <!-- Descrição (ro) -->
+                        <td><input type="text" class="form-control" id="descricao" name="descricao" readonly></td>
+
+                        <!-- UM (ro) -->
+                        <td><input type="text" class="form-control" id="unidade" name="unidade" readonly></td>
+
+                        <!-- Conta Contábil (zoom editável) -->
+                        <td>
+                          <input type="zoom" class="form-control" id="contaContabil" name="contaContabil"
+                            zoomvalue="codigo" data-zoom="{ 
+                              'datasetId':'ds_protheus_contaContabil',
+                              'displayKey':'descricao',
+                              'placeholder':'Selecione...',
+                              'fields':[
+                                {
+                                  'field':'codigo',
+                                  'label':'Código',
+                                  'visible':'false'
+                                },{
+                                  'field':'descricao',
+                                  'label':'Descrição',
+                                  'standard':true
+                                }
+                                ]}">
+                          <input type="hidden" id="hidden_contaContabil" name="hidden_contaContabil">
+                        </td>
+
+                        <!-- Centro de Custo (zoom editável) -->
+                        <td>
+                          <input type="zoom" class="form-control" id="centroCusto" name="centroCusto" zoomvalue="codigo"
+                            data-zoom="{ 
+                              'datasetId':'ds_protheus_centroCusto',
+                              'displayKey':'descricao',
+                              'placeholder':'Selecione...',
+                              'fields':[
+                                {
+                                  'field':'codigo',
+                                  'label':'Código',
+                                  'visible':'false'
+                                },{
+                                  'field':'descricao',
+                                  'label':'Descrição',
+                                  'standard':true
+                                }
+                                ]}">
+                          <input type="hidden" id="hidden_centroCusto" name="hidden_centroCusto">
+                        </td>
+
+                        <!-- Armazém (ro) -->
+                        <td><input type="text" class="form-control" id="armazem" name="armazem" readonly></td>
+
+                        <!-- Quantidade -->
+                        <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="0.001"
+                            step="0.001" placeholder="0,000">
+                        </td>
+
+                        <!-- Remover -->
+                        <td class="text-center">
+                          <span class="fluigicon fluigicon-trash icon-sm icon-btn" title="Remover"
+                            onclick="fnWdkRemoveChild(this)"></span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================
+          Painel de Aprovação (novo)
+          ========================= -->
+      <div class="panel panel-default" id="panelAprovacao">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="font-weight: bold;">
+            <a class="collapse-icon up" data-toggle="collapse" data-parent="#accordion" href="#panelCollapse_2">
+              <span class="flaticon flaticon-document-approved icon-sm"></span>&nbsp;Alçada de Aprovação -
+              Gerência</a>
+          </h3>
+        </div>
+        <div id="panelCollapse_2" class="panel-collapse collapse in">
+          <div class="panel-body">
+            <!-- 1ª linha: data/hora, aprovador, cargo -->
+            <div class="row" style="margin-bottom:10px;">
+              <div class="col-md-3">
+                <label for="dataHoraAprov">Data/Hora da aprovação</label>
+                <input type="text" class="form-control" id="dataHoraAprov" name="dataHoraAprov" readonly>
+              </div>
+              <div class="col-md-6">
+                <label for="aprovadorNome">Aprovador</label>
+                <input type="text" class="form-control" id="aprovadorNome" name="aprovadorNome" readonly>
+              </div>
+              <div class="col-md-3">
+                <label for="aprovadorCargo">Cargo/Função</label>
+                <input type="text" class="form-control" id="aprovadorCargo" name="aprovadorCargo" readonly>
+              </div>
+            </div>
+
+            <!-- Decisão em formato de "toggle buttons" -->
+            <div class="row" style="margin-bottom:10px;">
+              <div class="col-md-12">
+                <label id="lblDecisao" class="required">Decisão</label>
+                <div class="vf-decisao-group" role="radiogroup" aria-labelledby="lblDecisao">
+                  <!-- Importante: input vem antes do label para o seletor CSS :checked + label funcionar -->
+                  <input type="radio" id="decisao_aprovar" name="decisao" value="APROVAR" required>
+                  <label for="decisao_aprovar" class="vf-decisao vf-approve">
+                    <span class="fluigicon fluigicon-check icon-sm" aria-hidden="true"></span>
+                    Aprovar
+                  </label>
+
+                  <input type="radio" id="decisao_reprovar" name="decisao" value="REPROVAR" required>
+                  <label for="decisao_reprovar" class="vf-decisao vf-reprove">
+                    <span class="fluigicon fluigicon-remove icon-sm" aria-hidden="true"></span>
+                    Reprovar
+                  </label>
+                  <input type="hidden" name="hidden_decisao" id="hidden_decisao"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Justificativa (obrigatória apenas se "Reprovar") -->
+            <div class="row">
+              <div class="col-md-12">
+                <label for="justificativaAprov" id="lblJustAprov">Observação</label>
+                <textarea class="form-control" id="justificativaAprov" name="justificativaAprov" rows="3"></textarea>
+              </div>
+            </div>
+
+            <p class="help" style="margin-top:6px;">
+              Preencha a decisão e finalize a tarefa no Fluig para registrar a aprovação.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==============================
+     TIMELINE DE APROVAÇÕES (protótipo)
+     Cole acima do painel de aprovação
+     ============================== -->
+      <div class="panel panel-default vf-timeline" id="painelHistoricoAprovacoes">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="font-weight: bold;">
+            <a class="collapse-icon up" data-toggle="collapse" data-parent="#accordion" href="#panelCollapse_3">
+              <span class="flaticon flaticon-change-history icon-sm"></span>&nbsp;Histórico de
+              Aprovações</a>
+          </h3>
+        </div>
+        <div id="panelCollapse_3" class="panel-collapse collapse in">
+          <div class="panel-body">
+            <ol class="vf-tl-list">
+<!--               
+              
+              <li class="vf-tl-item vf-st-aprovado">
+                <div class="vf-tl-marker"><span class="fluigicon fluigicon-check icon-sm"></span></div>
+                <div class="vf-tl-content">
+                  <div class="vf-tl-row">
+                    <strong>Nível 1 — Compras</strong>
+                    <span class="vf-tl-date">17/08/2025 10:12</span>
+                  </div>
+                  <div class="vf-tl-meta">Ana Souza • Comprador</div>
+                  <div class="vf-tl-note">Cotação dentro do budget.</div>
+                </div>
+              </li>
+
+            
+              <li class="vf-tl-item vf-st-reprovado">
+                <div class="vf-tl-marker"><span class="fluigicon fluigicon-remove icon-sm"></span></div>
+                <div class="vf-tl-content">
+                  <div class="vf-tl-row">
+                    <strong>Nível 2 — Gestor</strong>
+                    <span class="vf-tl-date">17/08/2025 11:05</span>
+                  </div>
+                  <div class="vf-tl-meta">Carlos Lima • Gestor de Operações</div>
+                  <div class="vf-tl-note">Reprovado por falta de centro de custo correto.</div>
+                </div>
+              </li>
+
+            
+              <li class="vf-tl-item vf-st-pendente">
+                <div class="vf-tl-marker"><span class="fluigicon fluigicon-time icon-sm"></span></div>
+                <div class="vf-tl-content">
+                  <div class="vf-tl-row">
+                    <strong>Nível 3 — Diretoria</strong>
+                    <span class="vf-tl-date">Pendente</span>
+                  </div>
+                  <div class="vf-tl-meta">—</div>
+                </div>
+              </li> -->
+            </ol>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </form>
+</body>
+
+</html>
