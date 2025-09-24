@@ -134,22 +134,22 @@ class ActivityController {
         errorMsg += 'Adicione pelo menos um Item da SC.' + endOfLine;
       } else {
         $('#tbItens').each((key, linhaTabela) => {
-          let elementInput = $(linhaTabela).find('[name^="hidden_produto"]');
+          let elementInput = $(linhaTabela).find('[name^="hidden_produto_"]');
           if (Util.estaVazio($(elementInput).val())) {
             $(elementInput).parent().addClass('has-error');
             errorMsg += 'Informe o Produto na posição nº: ' + (key + 1) + endOfLine;
           }
-          elementInput = $(linhaTabela).find('[name^="hidden_contaContabil"]');
+          elementInput = $(linhaTabela).find('[name^="hidden_contaContabil_"]');
           if (Util.estaVazio($(elementInput).val())) {
             $(elementInput).parent().addClass('has-error');
             errorMsg += 'Informe a Conta Contábil na posição nº: ' + (key + 1) + endOfLine;
           }
-          elementInput = $(linhaTabela).find('[name^="hidden_centroCusto"]');
+          elementInput = $(linhaTabela).find('[name^="hidden_centroCusto_"]');
           if (Util.estaVazio($(elementInput).val())) {
             $(elementInput).parent().addClass('has-error');
             errorMsg += 'Informe o Centro de Custo na posição nº: ' + (key + 1) + endOfLine;
           }
-          elementInput = $(linhaTabela).find('[name^="quantidade"]');
+          elementInput = $(linhaTabela).find('[name^="quantidade_"]');
           if (Util.estaVazio($(elementInput).val())) {
             $(elementInput).parent().addClass('has-error');
             errorMsg += 'Informe a Quantidade na posição nº: ' + (key + 1) + endOfLine;
@@ -193,9 +193,9 @@ class ActivityController {
     $("[name='decisao']").on("click", function (event) {
       $("#hidden_decisao").val($(this).val())
       if ($(this).val() == "APROVAR") {
-        $("label[for=justificativaAprov]").html('Observação');
+        $("label[for=justificativaAprov]").html('Observação:');
       } else {
-        $("label[for=justificativaAprov]").html('Justificativa<span class="required text-danger"><strong>*</strong></span>')
+        $("label[for=justificativaAprov]").html('Justificativa:').addClass("required")
       }
     })
 

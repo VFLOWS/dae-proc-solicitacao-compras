@@ -1,5 +1,5 @@
 class Util {
-  constructor() {}
+  constructor() { }
 
   static exibeImagem(imagemHex, campoImagem) {
     document.getElementById(campoImagem).src = "data:image/jpeg;base64," + imagemHex;
@@ -202,9 +202,9 @@ class Util {
         setTimeout(() => {
           if (window && window.formController && window.formController._formMode != "VIEW") {
 
-              $('html, body').animate({
-                scrollTop: $(referencia).offset().top
-              }, 500);
+            $('html, body').animate({
+              scrollTop: $(referencia).offset().top
+            }, 500);
 
           }
         }, 1000);
@@ -212,9 +212,9 @@ class Util {
         setTimeout(() => {
           if (window && window.formController && window.formController._formMode != "VIEW") {
 
-              $('html, body').animate({
-                scrollTop: $(referencia).offset().top
-              }, 500);
+            $('html, body').animate({
+              scrollTop: $(referencia).offset().top
+            }, 500);
           }
         }, 1000);
       }
@@ -282,11 +282,11 @@ class Util {
 
     var d = new Date;
     var dformat = [d.getFullYear(),
-      (d.getMonth() + 1).padLeft(),
-      d.getDate().padLeft()
+    (d.getMonth() + 1).padLeft(),
+    d.getDate().padLeft()
     ].join('/') + ' ' + [d.getHours().padLeft(),
-      d.getMinutes().padLeft(),
-      d.getSeconds().padLeft()
+    d.getMinutes().padLeft(),
+    d.getSeconds().padLeft()
     ].join(':');
     return dformat;
   }
@@ -426,69 +426,43 @@ class Util {
   }
 
 
-  static consultaCep() {
-    $(document).on("ready", function () {
-
-      function limpa_formulário_cep() {
-        // Limpa valores do formulário de cep.
-        $("#logradouro").val("");
-        $("#bairro").val("");
-        $("#cidade").val("");
-        $("#estado").val("");
-
-      }
-
-      //Quando o campo cep perde o foco.
-      $("#cep").on("blur", function () {
-
-        //Nova variável "cep" somente com dígitos.
-        var cep = $(this).val().replace(/\D/g, '');
-
-        //Verifica se campo cep possui valor informado.
-        if (cep != "") {
-
-          //Expressão regular para validar o CEP.
-          var validacep = /^[0-9]{8}$/;
-
-          //Valida o formato do CEP.
-          if (validacep.test(cep)) {
-
-            //Preenche os campos com "..." enquanto consulta webservice.
-            $("#logradouro").val("...");
-            $("#bairro").val("...");
-            $("#municipio").val("...");
-            $("#estado").val("...");
-
-
-            //Consulta o webservice viacep.com.br/
-            $.getJSON("https://viacep.com.br/ws/" + cep + "/json/?callback=?", function (dados) {
-
-              if (!("erro" in dados)) {
-                //Atualiza os campos com os valores da consulta.
-                $('#logradouro').val(dados.logradouro);
-                $('#bairro').val(dados.bairro);
-                $('#municipio').val(dados.localidade);
-                $('#estado').val(dados.uf);
-
-              } //end if.
-              else {
-                //CEP pesquisado não foi encontrado.
-                limpa_formulário_cep();
-                alert("CEP não encontrado.");
-              }
-            });
-          } //end if.
-          else {
-            //cep é inválido.
-            limpa_formulário_cep();
-            alert("Formato de CEP inválido.");
-          }
-        } //end if.
-        else {
-          //cep sem valor, limpa formulário.
-          limpa_formulário_cep();
-        }
-      });
-    });
+  /* ===== Utilitários Pai x Filho ===== */
+  static getIdx(inputId) {
+    var p = String(inputId).split("___");
+    return p.length > 1 ? p[1] : "";
   }
+  static setVal(fieldId, value) {
+    var $el = $("#" + fieldId);
+    if ($el.length) {
+      $el.val(value);
+    }
+  }
+
+  static safeSetZoomValue(zoomId, obj) {
+    try {
+      var z = window[zoomId];
+      if (z && typeof z.setValue === "function") {
+        z.setValue({
+          'codigo': obj.codigo,
+          'descricao': obj.descricao
+        });
+        return;
+      }
+    } catch (e) { }
+
+    $("#" + zoomId).val(obj.descricao || obj.codigo || "");
+    $("#hidden_" + zoomId).val(obj.codigo || "");
+  }
+  static clearZoomFallback(zoomId) {
+    try {
+      var z = window[zoomId];
+      if (z && typeof z.clear === "function") {
+        z.clear();
+        return;
+      }
+    } catch (e) { }
+    $("#" + zoomId).val("");
+    $("#hidden_" + zoomId).val("");
+  }
+  static fnCustomDelete(el) { fnWdkRemoveChild(el); }
 }

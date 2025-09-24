@@ -65,7 +65,7 @@
     <div class="container-fluid vf-sc">
 
       <!-- BRAND BAR -->
-      <div class="brandbar" role="banner" aria-label="DAE Jundiaí">
+      <div class="brandbar" role="banner" aria-label="DAE Jundiaí" id="painelSolicitante">
         <div class="brand-left">
           <span class="brand-logo-wrap">
             <!-- Use caminho local se preferir (ex.: images/logo-dae.png) -->
@@ -208,7 +208,7 @@
                 <div class="row">
                   <div class="col-sm-6"><strong>Itens da SC</strong></div>
                   <div class="col-sm-6 text-right">
-                    <button type="button" class="btn btn-add btn-sm" onclick="wdkAddChild('tbItens')">
+                    <button type="button" class="btn btn-add btn-sm" onclick="wdkAddChild('tbItens')" id="btnAddSC">
                       <span class="fluigicon fluigicon-plus icon-sm"></span> Adicionar item
                     </button>
                   </div>
@@ -218,7 +218,7 @@
               <div class="panel-body">
                 <div class="table-responsive">
                   <table id="tbItens" tablename="tbItens" class="table table-condensed table-striped"
-                    customFnDelete="fnCustomDelete(this)" noaddbutton=true>
+                    customFnDelete="fnCustomDelete(this)" noaddbutton=true nodeletebutton=true>
                     <thead>
                       <tr>
                         <th class="required">Produto</th>

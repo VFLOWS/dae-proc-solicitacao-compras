@@ -99,20 +99,46 @@ class FormController {
   }
 
   zoomPainelSolicitacao(idSelecionado, zoomItem, acaoZoom) {
-    const beneficiario = "beneficiario";
     if (acaoZoom == AcaoZoom.SELECIONADO) {
 
-      if (idSelecionado == beneficiario) {
-        $("#cpfCpnjBeneficiario").val(Util.formataCPF(zoomItem["CGCCFO"]));
+      if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
+        var idx = Util.getIdx(idSelecionado, "produto");
+        Util.setVal("descricao___" + idx, zoomItem["descricao"] || "");
+        Util.setVal("unidade___" + idx, zoomItem["unidade"] || "");
+        Util.setVal("armazem___" + idx, zoomItem["armazem"] || "");
 
+        // Pré-preencher Conta/CC (usuário pode trocar)
+        if (zoomItem["contaContabil"]) {
+          Util.safeSetZoomValue("contaContabil___" + idx, {
+            codigo: zoomItem["contaContabil"],
+            descricao: zoomItem["contaContabil"]
+          });
+        }
+        if (zoomItem["centroCusto"]) {
+          Util.safeSetZoomValue("centroCusto___" + idx, {
+            codigo: zoomItem["centroCusto"],
+            descricao: zoomItem["centroCusto"]
+          });
+        }
       }
 
 
     } else if (acaoZoom == AcaoZoom.REMOVIDO) {
 
-      if (idSelecionado == beneficiario) {
-        reloadZoomFilterValues("beneficiario", `PESSOAFISOUJUR,F`);
+      if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
+        var idx = Util.getIdx(idSelecionado, "produto");
+        Util.setVal("descricao___" + idx, "");
+        Util.setVal("unidade___" + idx, "");
+        Util.setVal("armazem___" + idx, "");
       }
+
+       if (zoomItem["contaContabil"]) {
+
+       }
+
+        if (zoomItem["centroCusto"]) {
+
+        }
 
     }
   }
@@ -265,7 +291,7 @@ class FormController {
     });
   }
 
- 
+
 
 
 
@@ -325,7 +351,7 @@ class FormController {
       if ($(row).find("input[id^='painelHistorico1___']").val() == "Painel Assinatura") {
 
         let htmlPainelAssinatura = `
-				<div class="panel panel-primary" id="painelAssinaturaEletronica___${indexHistorico}">
+				<div class="panel panel-default" id="painelAssinaturaEletronica___${indexHistorico}">
 				<div class="panel-heading">
 				<h4 class="panel-title">
 				<a class="collapse-icon" data-toggle="collapse" href="#collapseAssinaturaEletronica___${indexHistorico}">
@@ -354,9 +380,9 @@ class FormController {
 
 
         /** INSERE PAINEL DE HISTÓRICO LOGO APÓS O PAINEL ORIGINAL DE SOLICITAÇÃO */
-        $(`<div class="panel panel-primary" id="idPainelHistorico___${indexHistorico}">` + $(row).find("input[id^='painelHistorico1___']").val() +
-            $(row).find("input[id^='painelHistorico2___']").val() + $(row).find("input[id^='painelHistorico3___']").val() +
-            $(row).find("input[id^='painelHistorico4___']").val() + "</div>")
+        $(`<div class="panel panel-default" id="idPainelHistorico___${indexHistorico}">` + $(row).find("input[id^='painelHistorico1___']").val() +
+          $(row).find("input[id^='painelHistorico2___']").val() + $(row).find("input[id^='painelHistorico3___']").val() +
+          $(row).find("input[id^='painelHistorico4___']").val() + "</div>")
           .insertAfter("#painelSolicitante")
 
         var valuesInputs = JSON.parse($(row).find("input[id^='valuesCamposHistorico___']").val())
@@ -365,15 +391,15 @@ class FormController {
         if (classesRemover.length > 0) {
           classesRemover.forEach(classe => {
             if (classe == `panel-info`) {
-              $(`.panel-info`, $(`#idPainelHistorico___${indexHistorico}`)).addClass(`panel-primary`);
+              $(`.panel-info`, $(`#idPainelHistorico___${indexHistorico}`)).addClass(`panel-default`);
             }
             $(`#idPainelHistorico___${indexHistorico}`).find(`.${classe}`).removeClass(classe);
           });
         }
 
         /** ATUALIZA O VALOR DO HREF DOS COLLAPSES PARA QUE NÃO HAJA CONFLITO COM O PAINEL ORIGINAL */
-        let hrefCollpase = $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#collapse']").attr("href")
-        $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#collapse']").attr("href", "#" + (indexHistorico) + "_" + (hrefCollpase.split("#")[1]))
+        let hrefCollpase = $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panelCollapse']").attr("href")
+        $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panelCollapse']").attr("href", "#" + (indexHistorico) + "_" + (hrefCollpase.split("#")[1]))
 
         $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panel']")).forEach(fieldset => {
           let hrefFieldset = $(fieldset).attr("href");
@@ -381,12 +407,13 @@ class FormController {
         })
 
         /** ATUALIZA HEADER DO PAINEL HISTÓRICO, ADICIONANDO O INDICE, NOME DO SOLICITANTE E A DATA  */
-        $(`#idPainelHistorico___${indexHistorico}`).find(`[href^='#${indexHistorico}_collapse']`).find("b")
+        $(`#idPainelHistorico___${indexHistorico}`).find(`[href^='#${indexHistorico}_panelCollapse']`).find("b")
           .before(`<b>${$(row).find("input[id^='indiceHistorico___']").val()}. </b>`)
           .after(`<span>  |  ${$(row).find("input[id^='nomeSolicitanteHistorico___']").val()} ${$(row).find("input[id^='dataHistorico___']").val()}</span>`)
 
         /** REMOVE BOTÕES DE ANEXAR E DE EXCLUIR ANEXO */
-        $(`#idPainelHistorico___${indexHistorico}`).find(".laranja-cncoop").remove()
+        $(`#idPainelHistorico___${indexHistorico}`).find(".fluigicon-trash").remove()
+        $(`#idPainelHistorico___${indexHistorico}`).find(`[id^='${indexHistorico}_btnAddSC']`).remove()
 
         /** CONTRAI COLLAPSE  */
         $(`#idPainelHistorico___${indexHistorico}`).find(".in").removeClass("in")
@@ -463,14 +490,14 @@ class FormController {
           }
         })
 
-       
+
 
         $(`#idPainelHistorico___${indexHistorico}`).find(`div[id^='${indexHistorico}_field']`).removeAttr("style")
         $(`#idPainelHistorico___${indexHistorico}`).find(`fieldset[id^='${indexHistorico}_fieldset']`).removeAttr("style")
         $(`#idPainelHistorico___${indexHistorico}`).find(`table[id^='tablePaiFilho']`).removeAttr("style")
       }
     });
-    
+
   }
 
 }
