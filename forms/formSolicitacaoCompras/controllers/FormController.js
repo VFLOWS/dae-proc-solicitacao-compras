@@ -32,6 +32,8 @@ class FormController {
 
     this.exibirPaineisHistorico(classes);
 
+    this.montaTabelaAprovacoes();
+
     const formController = this;
     this._FormView.setFormController(formController);
     window['setSelectedZoomItem'] = !window['setSelectedZoomItem'] ? objZoom => this.zoomSelected(objZoom) : window['setSelectedZoomItem']();
@@ -54,9 +56,13 @@ class FormController {
    * @function setarMascaras Adiciona máscara de reais nos campos que contém a classe.
    */
   setarMascaras() {
-    if (this._atividade == Activity.INICIO_PADRAO || this._atividade == Activity.CORRIGIR || this._atividade == Activity.INICIO) {
-      this.calendarios.calendarioDataRetornoViagem = Util.criarCalendario('divDataRetornoViagem');
-    }
+    // if (this._atividade == Activity.INICIO_PADRAO || this._atividade == Activity.CORRIGIR || this._atividade == Activity.INICIO) {
+    //   this.calendarios.calendarioDataRetornoViagem = Util.criarCalendario('divDataRetornoViagem');
+    // }
+
+    $('.real').mask("#.##0,00", {
+      reverse: true
+    });
   }
 
   atualizaValorDiarias() {
@@ -70,6 +76,67 @@ class FormController {
           currency: "BRL"
         }).replace('R$ ', '')
       )
+    })
+  }
+
+  adicionarItem(event) {
+    const TABELA_ITEM = 'tbItens';
+    const indexLinhaCriada = wdkAddChild(TABELA_ITEM);
+    $(`#valorUn___${indexLinhaCriada}`).on("change", function (data) {
+      var quantidade = $(`#quantidade___${indexLinhaCriada}`).val();
+      var valor = data.target.value;
+      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
+      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
+        minimumFractionDigits: 2
+      }));
+      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+      }
+    })
+    $(`#quantidade___${indexLinhaCriada}`).on("change", function (data) {
+      var valor = $(`#valorUn___${indexLinhaCriada}`).val();
+      var quantidade = data.target.value;
+      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
+      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
+        minimumFractionDigits: 2
+      }));
+      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+      }
+    })
+     $('.real').mask('#.##0,00', {
+      reverse: true,
+      placeholder: '0,00'
+    });
+
+  }
+
+  carregaFuncionalidadesTabela(event) {
+    $.makeArray($('input[id^="valorUn___"]')).forEach(input => {
+      $(input).on("change", function (data) {
+        var quantidade = $(input).parent().parent().find('[id^="quantidade__"]').val();
+        var valor = data.target.value;
+        var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
+        $(input).parent().parent().find('[name^="valorTotal__"]').val(total.toLocaleString('pt-br', {
+          minimumFractionDigits: 2
+        }));
+        if ($(input).parent().parent().find('[name^="valorTotal__"').val() == 'NaN') {
+          $(input).parent().parent().find('[name^="valorTotal__"').val('0,00');
+        }
+      })
+    })
+    $.makeArray($('input[id^="quantidade__"]')).forEach(input => {
+      $(input).on("change", function (data) {
+        var valor = $(input).parent().parent().find('[id^="valorUn___"]').val();
+        var quantidade = data.target.value;
+        var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
+        $(input).parent().parent().find('[name^="valorTotal__"]').val(total.toLocaleString('pt-br', {
+          minimumFractionDigits: 2
+        }));
+        if ($(input).parent().parent().find('[name^="valorTotal__"').val() == 'NaN') {
+          $(input).parent().parent().find('[name^="valorTotal__"').val('0,00');
+        }
+      })
     })
   }
 
@@ -103,7 +170,7 @@ class FormController {
 
       if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
         var idx = Util.getIdx(idSelecionado, "produto");
-        Util.setVal("descricao___" + idx, zoomItem["descricao"] || "");
+        Util.setVal("descricao___" + idx, zoomItem["codigo"] || "");
         Util.setVal("unidade___" + idx, zoomItem["unidade"] || "");
         Util.setVal("armazem___" + idx, zoomItem["armazem"] || "");
 
@@ -132,167 +199,110 @@ class FormController {
         Util.setVal("armazem___" + idx, "");
       }
 
-       if (zoomItem["contaContabil"]) {
+      if (zoomItem["contaContabil"]) {
 
-       }
-
-        if (zoomItem["centroCusto"]) {
-
-        }
-
-    }
-  }
-
-
-  adicionarItem(event) {
-    if ($('#solicitacaoCNPJContratoRM').val() ? $('#solicitacaoCNPJContratoRM').val()[0] : null) {
-      const TABELA_ITEM = 'tableAdicionarItem';
-      const indexLinhaCriada = wdkAddChild(TABELA_ITEM);
-      formController.carregaFuncionalidadesTabela()
-      const numeroContratoAtual = $('#solicitacaoRMContrato').val();
-      if (Util.estaVazio(numeroContratoAtual)) {
-        window[`itemContrato___${indexLinhaCriada}`].disable(true);
-      } else {
-        const coligada = $('#solicitacaoContratoCodColigada').val();
-        reloadZoomFilterValues(`itemContrato___${indexLinhaCriada}`, `parameters,CODCOLIGADA=${coligada};CODCONTRATO=${numeroContratoAtual}`);
       }
 
-      $('#unidadeItem___' + indexLinhaCriada).val('');
-      $('#descricaoCentroCustoItem___' + indexLinhaCriada).val('');
-      $('#valorUnitario___' + indexLinhaCriada).val('');
-      $('#valorTotal___' + indexLinhaCriada).val('');
+      if (zoomItem["centroCusto"]) {
 
-      this.carregaFuncionalidadesTabela()
-
-      $('[id^=collapseItemContrato___]').not(':first').collapse()
-    } else {
-      Util.exibirToast('Atenção:', 'Para adicionar itens é necessário selecionar um fornecedor.', 'warning');
-    }
-  }
-
-  deleteItem(elementRemovido) {
-    fnWdkRemoveChild(elementRemovido);
-    this.carregaFuncionalidadesTabela()
-    if ($('#tableAdicionarItem tr').length - 2 == 0) {
-      $("#valorNotaFiscal").val('');
-      $("#valorTotalNotaFiscal").val('');
-    }
-  }
-
-  carregaFuncionalidadesTabela(quantidade, valorUnitario, posicaoTabela) {
-
-    $('.real').mask('#.##0,00', {
-      reverse: true,
-      placeholder: '0,00'
-    });
-
-    if (!Util.estaVazio(valorUnitario)) {
-      var total = quantidade * Number(valorUnitario);
-
-      $("#valorTotal___" + posicaoTabela).val(total.toLocaleString('pt-br', {
-        minimumFractionDigits: 2
-      }));
-
-      let valorTotalNota = 0;
-      $($('table#tableAdicionarItem tbody tr').not(':first').find('[name^=valorTotal___]')).map((a, b) => valorTotalNota = parseFloat(valorTotalNota) + parseFloat(b.value.replaceAll('.', '').replace(',', '.')))
-
-      if (typeof $('#valorTotalNotaFiscal').mask === 'function') {
-        valorTotalNota > 0 ? $('#valorTotalNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-          minimumFractionDigits: 2
-        })) : $('#valorTotalNota').val('0,00');
-        valorTotalNota > 0 ? $('#valorNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-          minimumFractionDigits: 2
-        })) : $('#valorTotalNota').val('0,00');
       }
 
-      $('#valorUnitario___' + posicaoTabela).val(!isNaN(parseFloat(valorUnitario)) ? parseFloat(valorUnitario).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL'
-      }).replace('R$', '') : '0,00');
-
-      $('#quantidade___' + posicaoTabela).attr('readonly', false);
-      $('#valorUnitario___' + posicaoTabela).attr('readonly', false);
     }
-
-    $.makeArray($('input[id^="valorUnitario__"]')).forEach(input => {
-      $(input).on("change", function (data) {
-
-        var quantidade = $(input).parent().parent().parent().find('[id^="quantidade__"]').val();
-        var valor = data.target.value;
-
-        var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-
-        $(input).parent().parent().parent().find('[name^="valorTotal__"').val(total.toLocaleString('pt-br', {
-          minimumFractionDigits: 2
-        }));
-
-        let valorTotalNota = 0;
-        $($('table#tableAdicionarItem tbody tr').not(':first').find('[name^=valorTotal___]')).map((a, b) => valorTotalNota = parseFloat(valorTotalNota) + parseFloat(b.value.replaceAll('.', '').replace(',', '.')))
-
-        if (typeof $('#valorTotalNotaFiscal').mask === 'function') {
-          valorTotalNota > 0 ? $('#valorTotalNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2
-          })) : $('#valorTotalNota').val('0,00');
-          valorTotalNota > 0 ? $('#valorNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2
-          })) : $('#valorTotalNota').val('0,00');
-        }
-
-        if ($(input).parent().parent().find('[name^="valorTotal__"').val() == 'NaN') {
-          $(input).parent().parent().find('[name^="valorTotal__"').val('0,00');
-        }
-      });
-    });
-
-    $.makeArray($('input[id^="quantidade___"]')).forEach(input => {
-      $(input).on("change", function (data) {
-
-        var valor = $(input).parent().parent().find('[name^="valorUnitario__"]').val();
-        var quantidade = parseInt(data.target.value);
-
-        var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-
-        $(input).parent().parent().find('[name^="valorTotal__"').val(total.toLocaleString('pt-br', {
-          minimumFractionDigits: 2
-        }));
-
-        let valorTotalNota = 0;
-        $($('table#tableAdicionarItem tbody tr').not(':first').find('[name^=valorTotal___]')).map((a, b) => valorTotalNota = parseFloat(valorTotalNota) + parseFloat(b.value.replaceAll('.', '').replace(',', '.')))
-
-        if (typeof $('#valorTotalNotaFiscal').mask === 'function') {
-          valorTotalNota > 0 ? $('#valorTotalNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2
-          })) : $('#valorTotalNota').val('0,00');
-          valorTotalNota > 0 ? $('#valorNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-            minimumFractionDigits: 2
-          })) : $('#valorTotalNota').val('0,00');
-        }
-
-        if ($(input).parent().parent().find('[name^="valorTotal__"').val() == 'NaN') {
-          $(input).parent().parent().find('[name^="valorTotal__"').val('0,00');
-        }
-      });
-    });
-
-    let valorTotalNota = 0;
-    $($('table#tableAdicionarItem tbody tr').not(':first').find('[name^=valorTotal___]')).map((a, b) => valorTotalNota = parseFloat(valorTotalNota) + parseFloat(b.value.replaceAll('.', '').replace(',', '.')))
-    if (typeof $('#valorTotalNotaFiscal').mask === 'function') {
-      valorTotalNota > 0 ? $('#valorTotalNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-        minimumFractionDigits: 2
-      })) : $('#valorTotalNota').val('0,00');
-      valorTotalNota > 0 ? $('#valorNotaFiscal').val(parseFloat(valorTotalNota).toLocaleString('pt-BR', {
-        minimumFractionDigits: 2
-      })) : $('#valorTotalNota').val('0,00');
-    }
-
-
-    $.makeArray($('input[id^="unidadeItem_"]')).forEach(function (element, index) {
-      $(element).parent().parent().parent().find('legend[id^="itemTabela"]').text("Item " + (index + 1));
-    });
   }
 
+  consultaNome(nome) {
+    var constraintColleague = DatasetFactory.createConstraint('colleaguePK.colleagueId', nome, nome, ConstraintType.MUST);
+    var retornoColleague = DatasetFactory.getDataset('colleague', [], [constraintColleague], null).values[0]['colleagueName'];
+    return retornoColleague
+  }
+
+  montaTabelaAprovacoes() {
+    const aprovacoes = JSON.parse($("#controleAprovacoes").val())
+    if (!Util.estaVazio(aprovacoes)) {
+      for (let i = 0; i < Object.keys(aprovacoes).length; i++) {
+        var html = ``
+        var objPrimario = Object.keys(aprovacoes[i])
+        var numsc = objPrimario[0]
+        html = `
+          <div class="panel panel-default vf-timeline" id="painelEtapa_${i + 1}">
+            <div class="panel-heading">
+              <h3 class="panel-title" style="font-weight: bold;">
+                <a class="collapse-icon up" data-toggle="collapse" data-parent="#accordion" href="#panelCollapseAprova_${i + 1}">
+                  <span class="flaticon flaticon-document-approved icon-sm"></span>&nbsp;Aprovação Etapa ${i + 1} - Solicitação de Compra ${numsc}</a>
+              </h3>
+            </div>
+            <div id="panelCollapseAprova_${i + 1}" class="panel-collapse collapse in">
+              <div class="panel-body">
+              `
+
+        for (let j = 1; j <= Object.keys(aprovacoes[i][numsc]).length; j++) {
+
+          html += `<ol class="vf-tl-list">`
+
+          var nome = this.consultaNome(aprovacoes[i][numsc][j]["matricula"])
+
+          if (aprovacoes[i][numsc][j]["status"] == "pendente") {
+            html += `
+                <li class="vf-tl-item vf-st-pendente">
+                  <div class="vf-tl-marker"><span class="fluigicon fluigicon-time icon-sm"></span></div>
+                  <div class="vf-tl-content">
+                    <div class="vf-tl-row">
+                      <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
+                      <span class="vf-tl-date">Pendente</span>
+                    </div>
+                    <div class="vf-tl-meta"> ---</div>
+                  </div>
+                </li>
+            `
+          }
+
+          if (aprovacoes[i][numsc][j]["status"] == "aprovado") {
+            html += `
+                <li class="vf-tl-item vf-st-aprovado">
+                  <div class="vf-tl-marker"><span class="fluigicon fluigicon-check icon-sm"></span></div>
+                  <div class="vf-tl-content">
+                    <div class="vf-tl-row">
+                      <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
+                      <span class="vf-tl-date">${aprovacoes[i][numsc][j]["horario"]}</span>
+                    </div>
+                    <div class="vf-tl-meta">${nome}</div>
+                    <div class="vf-tl-note">${aprovacoes[i][numsc][j]["comentario"]}</div>
+                  </div>
+                </li>
+            `
+          }
+
+          if (aprovacoes[i][numsc][j]["status"] == "reprovado") {
+            html += `
+                 <li class="vf-tl-item vf-st-reprovado">
+                    <div class="vf-tl-marker"><span class="fluigicon fluigicon-remove icon-sm"></span></div>
+                    <div class="vf-tl-content">
+                      <div class="vf-tl-row">
+                        <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
+                        <span class="vf-tl-date">${aprovacoes[i][numsc][j]["horario"]}</span>
+                      </div>
+                      <div class="vf-tl-meta">${nome}</div>
+                      <div class="vf-tl-note">${aprovacoes[i][numsc][j]["comentario"]}</div>
+                    </div>
+                  </li>
+            `
+          }
+
+          html += `</ol>`
+        }
 
 
+        html += ` 
+              </div>
+            </div>
+          </div>
+      `
+
+      $("#aprovacoes").append(html)
+      }
+
+    }
+  }
 
 
   static salvarPainelHistorico(painel, data, nomeSolicitante) {
@@ -309,7 +319,6 @@ class FormController {
       }
     })
 
-    inputs[`jsonPastas___${indiceLinhaAdicionada}`] = $("#jsonPastas").val();
 
     var htmlOriginalPainel = $(`#${painel}`).html()
     var htmlReduzido = htmlOriginalPainel.replace(/>\s+|\s+</g, function (m) {
@@ -348,154 +357,121 @@ class FormController {
       var indexHistorico = row.id.split("___")[1]
 
       /** VERIFICAR SE O PAINEL É DO TIPO 'ASSINATURA ELETRONICA' E FAZ O TRATAMENTO ADEQUADO */
-      if ($(row).find("input[id^='painelHistorico1___']").val() == "Painel Assinatura") {
-
-        let htmlPainelAssinatura = `
-				<div class="panel panel-default" id="painelAssinaturaEletronica___${indexHistorico}">
-				<div class="panel-heading">
-				<h4 class="panel-title">
-				<a class="collapse-icon" data-toggle="collapse" href="#collapseAssinaturaEletronica___${indexHistorico}">
-				<b>${indexHistorico}. Assinatura Eletrônica | ${$(row).find("input[id^='nomeSolicitanteHistorico___']").val()}</b>
-				</a>
-				</h4>
-				</div>
-				<div id="collapseAssinaturaEletronica___${indexHistorico}" class="panel-collapse collapse in">
-				<div class="panel-body">
-				<div class="row">
-				<div class="tabelaAssinaturas___${indexHistorico}" id="tabelaAssinaturas___${indexHistorico}"></div>
-				</div>
-				</div>
-				</div>
-				</div>
-				`
-
-        /** INSERE PAINEL DE HISTÓRICO LOGO APÓS O PAINEL ORIGINAL DE SOLICITAÇÃO */
-        $(htmlPainelAssinatura).insertAfter("#painelSolicitante")
-
-        /** CHAMA MÉTODO PARA MONTAR TABLE DE ASSINANTES */
-        let jsonAssinantes = JSON.parse($(row).find("input[id^='valuesCamposHistorico___']").val());
-        Assinatura.carregarTabelaAssinaturasHistorico(jsonAssinantes, indexHistorico)
-
-      } else {
 
 
-        /** INSERE PAINEL DE HISTÓRICO LOGO APÓS O PAINEL ORIGINAL DE SOLICITAÇÃO */
-        $(`<div class="panel panel-default" id="idPainelHistorico___${indexHistorico}">` + $(row).find("input[id^='painelHistorico1___']").val() +
-          $(row).find("input[id^='painelHistorico2___']").val() + $(row).find("input[id^='painelHistorico3___']").val() +
-          $(row).find("input[id^='painelHistorico4___']").val() + "</div>")
-          .insertAfter("#painelSolicitante")
 
-        var valuesInputs = JSON.parse($(row).find("input[id^='valuesCamposHistorico___']").val())
+      /** INSERE PAINEL DE HISTÓRICO LOGO APÓS O PAINEL ORIGINAL DE SOLICITAÇÃO */
+      $(`<div class="panel panel-default" id="idPainelHistorico___${indexHistorico}">` + $(row).find("input[id^='painelHistorico1___']").val() +
+        $(row).find("input[id^='painelHistorico2___']").val() + $(row).find("input[id^='painelHistorico3___']").val() +
+        $(row).find("input[id^='painelHistorico4___']").val() + "</div>")
+        .insertAfter("#painelSolicitante")
 
-        /** REMOVE CLASSES QUE FAZEM CONTROLE DA VISUALIZAÇÃO DO PAINEL */
-        if (classesRemover.length > 0) {
-          classesRemover.forEach(classe => {
-            if (classe == `panel-info`) {
-              $(`.panel-info`, $(`#idPainelHistorico___${indexHistorico}`)).addClass(`panel-default`);
-            }
-            $(`#idPainelHistorico___${indexHistorico}`).find(`.${classe}`).removeClass(classe);
-          });
+      var valuesInputs = JSON.parse($(row).find("input[id^='valuesCamposHistorico___']").val())
+
+      /** REMOVE CLASSES QUE FAZEM CONTROLE DA VISUALIZAÇÃO DO PAINEL */
+      if (classesRemover.length > 0) {
+        classesRemover.forEach(classe => {
+          if (classe == `panel-info`) {
+            $(`.panel-info`, $(`#idPainelHistorico___${indexHistorico}`)).addClass(`panel-default`);
+          }
+          $(`#idPainelHistorico___${indexHistorico}`).find(`.${classe}`).removeClass(classe);
+        });
+      }
+
+      /** ATUALIZA O VALOR DO HREF DOS COLLAPSES PARA QUE NÃO HAJA CONFLITO COM O PAINEL ORIGINAL */
+      let hrefCollpase = $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panelCollapse']").attr("href")
+      $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panelCollapse']").attr("href", "#" + (indexHistorico) + "_" + (hrefCollpase.split("#")[1]))
+
+      $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panel']")).forEach(fieldset => {
+        let hrefFieldset = $(fieldset).attr("href");
+        $(fieldset).attr("href", "#" + (indexHistorico) + "_" + (hrefFieldset.split("#")[1]))
+      })
+
+      /** ATUALIZA HEADER DO PAINEL HISTÓRICO, ADICIONANDO O INDICE, NOME DO SOLICITANTE E A DATA  */
+      $(`#idPainelHistorico___${indexHistorico}`).find(`[href^='#${indexHistorico}_panelCollapse']`)
+        .prepend(`${$(row).find("input[id^='indiceHistorico___']").val()}.`)
+        .append(`<span>  |  ${$(row).find("input[id^='nomeSolicitanteHistorico___']").val()} ${$(row).find("input[id^='dataHistorico___']").val()}</span>`)
+
+      /** REMOVE BOTÕES DE ANEXAR E DE EXCLUIR ANEXO */
+      $(`#idPainelHistorico___${indexHistorico}`).find(".fluigicon-trash").remove()
+      $(`#idPainelHistorico___${indexHistorico}`).find(`[id^='${indexHistorico}_btnAddSC']`).remove()
+
+      /** CONTRAI COLLAPSE  */
+      $(`#idPainelHistorico___${indexHistorico}`).find(".in").removeClass("in")
+      $(`#idPainelHistorico___${indexHistorico}`).find(`[id^='${indexHistorico}_panelCollapse']`).addClass("in")
+
+      /** PERCORRE O PAINEL DE HISTÓRICO PARA ENCONTRAR TODOS OS RADIOS E DESMARCALOS */
+      $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("[id]")).forEach(el => {
+        if ($(el).attr("type") == "radio") {
+          $(el).prop("checked", false);
+        }
+      })
+
+      /** PERCORRE O PAINEL DE HISTÓRICO PARA ENCONTRAR TODOS OS ELEMENTOS QUE TENHAM ID */
+      $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("[id]")).forEach(el => {
+
+        /** SALVA O ID ORIGINAL DO ELEMENTO */
+        var id = $(el).attr("id");
+
+        /** DESATIVA EVENTO DE CLICK NO ELEMENTO */
+        //$(el).css("pointer-events", "none");
+
+        /** Remove atributo tablename */
+        var attrTablename = $(el).attr('tablename');
+        if (typeof attrTablename !== 'undefined' && attrTablename !== false) {
+          $(el).attr("tablename", `tablePaiFilho_${indexHistorico}`);
+          $(el).attr("id", `tablePaiFilho_${indexHistorico}`);
+          $(el).attr("name", `tablePaiFilho_${indexHistorico}`);
         }
 
-        /** ATUALIZA O VALOR DO HREF DOS COLLAPSES PARA QUE NÃO HAJA CONFLITO COM O PAINEL ORIGINAL */
-        let hrefCollpase = $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panelCollapse']").attr("href")
-        $(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panelCollapse']").attr("href", "#" + (indexHistorico) + "_" + (hrefCollpase.split("#")[1]))
-
-        $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("[href^='#panel']")).forEach(fieldset => {
-          let hrefFieldset = $(fieldset).attr("href");
-          $(fieldset).attr("href", "#" + (indexHistorico) + "_" + (hrefFieldset.split("#")[1]))
-        })
-
-        /** ATUALIZA HEADER DO PAINEL HISTÓRICO, ADICIONANDO O INDICE, NOME DO SOLICITANTE E A DATA  */
-        $(`#idPainelHistorico___${indexHistorico}`).find(`[href^='#${indexHistorico}_panelCollapse']`).find("b")
-          .before(`<b>${$(row).find("input[id^='indiceHistorico___']").val()}. </b>`)
-          .after(`<span>  |  ${$(row).find("input[id^='nomeSolicitanteHistorico___']").val()} ${$(row).find("input[id^='dataHistorico___']").val()}</span>`)
-
-        /** REMOVE BOTÕES DE ANEXAR E DE EXCLUIR ANEXO */
-        $(`#idPainelHistorico___${indexHistorico}`).find(".fluigicon-trash").remove()
-        $(`#idPainelHistorico___${indexHistorico}`).find(`[id^='${indexHistorico}_btnAddSC']`).remove()
-
-        /** CONTRAI COLLAPSE  */
-        $(`#idPainelHistorico___${indexHistorico}`).find(".in").removeClass("in")
-        $(`#idPainelHistorico___${indexHistorico}`).find(`[id^='${indexHistorico}_panelCollapse']`).addClass("in")
-
-        /** PERCORRE O PAINEL DE HISTÓRICO PARA ENCONTRAR TODOS OS RADIOS E DESMARCALOS */
-        $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("[id]")).forEach(el => {
-          if ($(el).attr("type") == "radio") {
-            $(el).prop("checked", false);
-          }
-        })
-
-        /** PERCORRE O PAINEL DE HISTÓRICO PARA ENCONTRAR TODOS OS ELEMENTOS QUE TENHAM ID */
-        $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("[id]")).forEach(el => {
-
-          /** SALVA O ID ORIGINAL DO ELEMENTO */
-          var id = $(el).attr("id");
-
-          /** DESATIVA EVENTO DE CLICK NO ELEMENTO */
-          //$(el).css("pointer-events", "none");
-
-          /** Remove atributo tablename */
-          var attrTablename = $(el).attr('tablename');
-          if (typeof attrTablename !== 'undefined' && attrTablename !== false) {
-            $(el).attr("tablename", `tablePaiFilho_${indexHistorico}`);
-            $(el).attr("id", `tablePaiFilho_${indexHistorico}`);
-            $(el).attr("name", `tablePaiFilho_${indexHistorico}`);
-          }
-
-          /** PASSA OS VALORES PARA OS CAMPOS E CASO SEJA CHECKBOX / RADIO SELECIONA A OPÇÃO CORRETA */
-          if ($(el).attr("type") == "radio" || $(el).attr("type") == "checkbox") {
-            if (valuesInputs[id]) {
-              $(`#${id}`).prop("checked", true);
-            } else {
-              $(`#${id}`).prop("checked", false);
-            }
+        /** PASSA OS VALORES PARA OS CAMPOS E CASO SEJA CHECKBOX / RADIO SELECIONA A OPÇÃO CORRETA */
+        if ($(el).attr("type") == "radio" || $(el).attr("type") == "checkbox") {
+          if (valuesInputs[id]) {
+            $(`#${id}`).prop("checked", true);
           } else {
-            $(`#${id}`).val(valuesInputs[id]);
+            $(`#${id}`).prop("checked", false);
           }
+        } else {
+          $(`#${id}`).val(valuesInputs[id]);
+        }
 
-          if ($(`#${id}`).attr("type") != "zoom") {
-            Util.desabilitarCampos([`#${id}`]);
-          }
-        });
+        if ($(`#${id}`).attr("type") != "zoom") {
+          Util.desabilitarCampos([`#${id}`]);
+        }
+      });
 
-        /** Remove atributo detailname de todas as TR's */
-        $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("tr")).forEach(el => {
-          $(el).removeAttr("detailname");
-        });
-
-        $(".bootstrap-tagsinput:not(.bootstrap-tagsinput-max)").each(function (key, element) {
-          var a = $(element)[0].previousSibling
-          $(a).show()
-        });
-        $(".bootstrap-tagsinput:not(.bootstrap-tagsinput-max)").hide()
-
-        /** ALTERA CHAMADA VISUALIZAÇÃO DOS ANEXOS PARA O JSONPASTAS DO HISTÓRICO */
-        let jsonPastasHist = valuesInputs[`jsonPastas___${indexHistorico}`]
-        //jsonPastasHist = JSON.stringify(jsonPastasHist).replace(/\n/g, "\n").replace(/\r/g, "\r").replace(/\t/g, "\t");
-        $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find(`button[id^='${indexHistorico}_visualizar']`)).forEach(btn => {
-          let categoria = $(btn).attr("onclick").split("'")[1]
-          var idArquivo = null
-
-          if (jsonPastasHist != "{}") {
-            idArquivo = this.obterIdUltimoArquivoHistorico(jsonPastasHist, categoria)
-          }
-
-          if (idArquivo != null) {
-            $(btn).on("onclick", function () {
-              formController.visualizarArquivoCategoriaHistorico($("#jsonPastas").val(), categoria)
-            })
-          } else {
-            $(btn).hide()
-          }
+      if ($(`#${indexHistorico}_hidden_decisao`).val() == "APROVAR") {
+        $(`#${indexHistorico}_decisao_aprovar`).attr('checked', 'checked')
+        $(`label[for="${indexHistorico}_decisao_aprovar"]`).css({
+          "background": "#15803d",
+          "border-color": "#15803d",
+          "color": "#fff"
         })
-
-
-
-        $(`#idPainelHistorico___${indexHistorico}`).find(`div[id^='${indexHistorico}_field']`).removeAttr("style")
-        $(`#idPainelHistorico___${indexHistorico}`).find(`fieldset[id^='${indexHistorico}_fieldset']`).removeAttr("style")
-        $(`#idPainelHistorico___${indexHistorico}`).find(`table[id^='tablePaiFilho']`).removeAttr("style")
       }
+      if ($(`#${indexHistorico}_hidden_decisao`).val() == "REPROVAR") {
+        $(`#${indexHistorico}_decisao_reprovar`).attr('checked', 'checked')
+        $(`label[for="${indexHistorico}_decisao_reprovar"]`).css({
+          "background": "#b91c1c",
+          "border-color": "#b91c1c",
+          "color": "#fff"
+        })
+      }
+
+      /** Remove atributo detailname de todas as TR's */
+      $.makeArray($(`#idPainelHistorico___${indexHistorico}`).find("tr")).forEach(el => {
+        $(el).removeAttr("detailname");
+      });
+
+      $(".bootstrap-tagsinput:not(.bootstrap-tagsinput-max)").each(function (key, element) {
+        var a = $(element)[0].previousSibling
+        $(a).show()
+      });
+      $(".bootstrap-tagsinput:not(.bootstrap-tagsinput-max)").hide()
+
+      $(`#idPainelHistorico___${indexHistorico}`).find(`div[id^='${indexHistorico}_field']`).removeAttr("style")
+      $(`#idPainelHistorico___${indexHistorico}`).find(`fieldset[id^='${indexHistorico}_fieldset']`).removeAttr("style")
+      $(`#idPainelHistorico___${indexHistorico}`).find(`table[id^='tablePaiFilho']`).removeAttr("style")
+
     });
 
   }

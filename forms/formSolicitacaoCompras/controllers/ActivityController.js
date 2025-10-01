@@ -74,32 +74,29 @@ class ActivityController {
 
   _controllerActivityInicio(formMode, atividade, formView, formController) {
 
-    if ($("[id^='solicitaDiarias']").is(":checked")) {
-      $(".seMarcado").show();
-      if ($("[id^='solicitaDiarias']:checked").val() == "devolver") {
-        $(".devolver").show();
-      } else {
-        $(".receber").show();
-      }
+    window.rowIndex['tbItens'] > 0 ? $("#tbItens tr").not(':first').not(':first').show() : ""
+    if (atividade == 11) {
+      formController.carregaFuncionalidadesTabela()
+      formView.ocultarPainel(
+        Painel.APROVACAO_GERENTE);
+    } else {
+      formView.ocultarPainel(
+        Painel.HISTORICO_APROVACOES,
+        Painel.APROVACAO_GERENTE);
     }
-
-    $("[id^='solicitaDiarias']").on('click', function (event) {
-      let optionChecked = event.target.value;
-
-    });
-
-    formView.ocultarPainel(
-      Painel.HISTORICO_APROVACOES,
-      Painel.APROVACAO_GERENTE);
-
 
     Util.destacarAtividadeAtual('#painelSolicitacao');
   }
 
   _viewActivityInicio(formMode, atividade, formView, formController) {
-    formView.ocultarPainel(
-      Painel.HISTORICO_APROVACOES,
-      Painel.APROVACAO_GERENTE);
+    if (atividade == 11) {
+      formView.ocultarPainel(
+        Painel.APROVACAO_GERENTE);
+    } else {
+      formView.ocultarPainel(
+        Painel.HISTORICO_APROVACOES,
+        Painel.APROVACAO_GERENTE);
+    }
   }
 
   _validateActivityInicio(numState, nexState) {
@@ -154,6 +151,11 @@ class ActivityController {
             $(elementInput).parent().addClass('has-error');
             errorMsg += 'Informe a Quantidade na posição nº: ' + (key + 1) + endOfLine;
           }
+          elementInput = $(linhaTabela).find('[name^="valorUn___"]');
+          if (Util.estaVazio($(elementInput).val())) {
+            $(elementInput).parent().addClass('has-error');
+            errorMsg += 'Informe o Valor Unitário na posição nº: ' + (key + 1) + endOfLine;
+          }
         })
       }
 
@@ -174,7 +176,9 @@ class ActivityController {
     if (errorMsg != '') {
       throw errorMsg;
     } else {
-      FormController.salvarPainelHistorico('painelSolicitacao', 'dataHoraSolic', 'solicitanteNome')
+      if (WKNumState == 11) {
+        FormController.salvarPainelHistorico('painelSolicitacao', 'dataCorrecao', 'nomeCorrecao')
+      } else FormController.salvarPainelHistorico('painelSolicitacao', 'dataHoraSolic', 'solicitanteNome')
     };
   }
 
@@ -182,18 +186,18 @@ class ActivityController {
   _controllerActivityAprovacao(formMode, atividade, formView, formController) {
 
     formView.ocultarPainel(
-      Painel.SOLICITACAO,
-      Painel.HISTORICO_APROVACOES);
+      Painel.SOLICITACAO);
 
     $("[name=decisao]").prop("checked", false)
     $("label[for=justificativaAprov]").html('Observação:');
+    $("#hidden_decisao").val("")
     $("#justificativaAprov").val("")
 
 
     $("[name='decisao']").on("click", function (event) {
       $("#hidden_decisao").val($(this).val())
       if ($(this).val() == "APROVAR") {
-        $("label[for=justificativaAprov]").html('Observação:');
+        $("label[for=justificativaAprov]").html('Observação:').removeClass("required");
       } else {
         $("label[for=justificativaAprov]").html('Justificativa:').addClass("required")
       }
@@ -204,16 +208,13 @@ class ActivityController {
 
   _viewActivityAprovacao(formMode, atividade, formView, formController) {
     formView.ocultarPainel(
-      Painel.SOLICITACAO,
-      Painel.HISTORICO_APROVACOES,
-      Painel.APROVACAO_GERENTE);
-   }
+      Painel.SOLICITACAO);
+  }
 
   _validateActivityAprovacao(numState, nexState) {
 
     let errorMsg = '';
     let endOfLine = '</br>';
-    const jsonPastas = JSON.parse($("#jsonPastas").val());
     $('.has-error').removeClass('has-error');
     try {
       if (Util.estaVazio($("#hidden_decisao").val())) {
@@ -253,7 +254,6 @@ class ActivityController {
   _controllerActivityFim(formMode, atividade, formView, formController) {
     formView.ocultarPainel(
       Painel.SOLICITACAO,
-      Painel.HISTORICO_APROVACOES,
       Painel.APROVACAO_GERENTE
     );
   }
@@ -261,7 +261,6 @@ class ActivityController {
   _viewActivityFim(formMode, atividade, formView, formController) {
     formView.ocultarPainel(
       Painel.SOLICITACAO,
-      Painel.HISTORICO_APROVACOES,
       Painel.APROVACAO_GERENTE
     );
   }

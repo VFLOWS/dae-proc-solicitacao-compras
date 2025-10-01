@@ -30,6 +30,8 @@
     <!-- CAMPOS PADRÕES -->
     <input type="hidden" name="loginSolicitante" id="loginSolicitante" />
     <input type="hidden" name="cpfSolicitante" id="cpfSolicitante">
+    <input type="hidden" name="matriculaAssinante" id="matriculaAssinante">
+    <input type="hidden" name="controleAssinaturas" id="controleAssinaturas" value="0">
 
     <!-- Table Histórico -->
     <table class="table" tablename="tableHistorico" noaddbutton=true nodeletebutton=true hidden>
@@ -208,7 +210,7 @@
                 <div class="row">
                   <div class="col-sm-6"><strong>Itens da SC</strong></div>
                   <div class="col-sm-6 text-right">
-                    <button type="button" class="btn btn-add btn-sm" onclick="wdkAddChild('tbItens')" id="btnAddSC">
+                    <button type="button" class="btn btn-add btn-sm" onclick="formController.adicionarItem(this)" id="btnAddSC">
                       <span class="fluigicon fluigicon-plus icon-sm"></span> Adicionar item
                     </button>
                   </div>
@@ -222,12 +224,13 @@
                     <thead>
                       <tr>
                         <th class="required">Produto</th>
-                        <th class="w-150">Descrição</th>
+                        <th class="w-110">Código Produto</th>
                         <th class="w-80">UND</th>
                         <th class="required">Conta Contábil</th>
                         <th class="required">Centro de Custo</th>
-                        <th class="w-110">Armazém</th>
                         <th class="required w-110">Quantidade</th>
+                        <th class="required">Valor</th>
+                        <th class="">Valor Total</th>
                         <th class="w-80"></th>
                       </tr>
                     </thead>
@@ -252,16 +255,20 @@
                                   'standard':true
                                 },{
                                   'field':'unidade',
-                                  'label':'UM'
+                                  'label':'UM',
+                                  'visible':'false'
                                 },{
                                   'field':'contaContabil',
-                                  'label':'Conta'
+                                  'label':'Conta',
+                                  'visible':'false'
                                 },{
                                   'field':'centroCusto',
-                                  'label':'CC'
+                                  'label':'CC',
+                                  'visible':'false'
                                 },{
                                   'field':'armazem',
-                                  'label':'Armazém'
+                                  'label':'Armazém',
+                                  'visible':'false'
                                 }
                                 ]}">
                           <input type="hidden" id="hidden_produto" name="hidden_produto">
@@ -313,15 +320,17 @@
                                 }
                                 ]}">
                           <input type="hidden" id="hidden_centroCusto" name="hidden_centroCusto">
+                          <input type="hidden" id="armazem" name="armazem">
                         </td>
-
-                        <!-- Armazém (ro) -->
-                        <td><input type="text" class="form-control" id="armazem" name="armazem" readonly></td>
 
                         <!-- Quantidade -->
-                        <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="0.001"
-                            step="0.001" placeholder="0,000">
+                        <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="1.000"
+                            step="1.000" placeholder="0,000">
                         </td>
+
+                         <!-- Armazém (ro) -->
+                        <td><input type="text" class="form-control real" id="valorUn" name="valorUn" placeholder="0,00"></td>
+                        <td><input type="text" class="form-control" id="valorTotal" name="valorTotal" readonly></td>
 
                         <!-- Remover -->
                         <td class="text-center">
@@ -352,6 +361,9 @@
         </div>
         <div id="panelCollapse_2" class="panel-collapse collapse in">
           <div class="panel-body">
+            <input type="hidden" id="controleAprovacoes" name="controleAprovacoes" value="{}"/>
+            <input type="hidden" id="controleOrdem" name="controleOrdem" value="1"/>
+            <input type="hidden" id="statusAprovacao" name="statusAprovacao" value="pendente"/>
             <!-- 1ª linha: data/hora, aprovador, cargo -->
             <div class="row" style="margin-bottom:10px;">
               <div class="col-md-3">
@@ -371,7 +383,7 @@
             <!-- Decisão em formato de "toggle buttons" -->
             <div class="row" style="margin-bottom:10px;">
               <div class="col-md-12">
-                <label id="lblDecisao" class="required">Decisão</label>
+                <label for="decisao" id="lblDecisao" class="required">Decisão</label>
                 <div class="vf-decisao-group" role="radiogroup" aria-labelledby="lblDecisao">
                   <!-- Importante: input vem antes do label para o seletor CSS :checked + label funcionar -->
                   <input type="radio" id="decisao_aprovar" name="decisao" value="APROVAR" required>
@@ -419,46 +431,7 @@
         </div>
         <div id="panelCollapse_3" class="panel-collapse collapse in">
           <div class="panel-body">
-            <ol class="vf-tl-list">
-<!--               
-              
-              <li class="vf-tl-item vf-st-aprovado">
-                <div class="vf-tl-marker"><span class="fluigicon fluigicon-check icon-sm"></span></div>
-                <div class="vf-tl-content">
-                  <div class="vf-tl-row">
-                    <strong>Nível 1 — Compras</strong>
-                    <span class="vf-tl-date">17/08/2025 10:12</span>
-                  </div>
-                  <div class="vf-tl-meta">Ana Souza • Comprador</div>
-                  <div class="vf-tl-note">Cotação dentro do budget.</div>
-                </div>
-              </li>
-
-            
-              <li class="vf-tl-item vf-st-reprovado">
-                <div class="vf-tl-marker"><span class="fluigicon fluigicon-remove icon-sm"></span></div>
-                <div class="vf-tl-content">
-                  <div class="vf-tl-row">
-                    <strong>Nível 2 — Gestor</strong>
-                    <span class="vf-tl-date">17/08/2025 11:05</span>
-                  </div>
-                  <div class="vf-tl-meta">Carlos Lima • Gestor de Operações</div>
-                  <div class="vf-tl-note">Reprovado por falta de centro de custo correto.</div>
-                </div>
-              </li>
-
-            
-              <li class="vf-tl-item vf-st-pendente">
-                <div class="vf-tl-marker"><span class="fluigicon fluigicon-time icon-sm"></span></div>
-                <div class="vf-tl-content">
-                  <div class="vf-tl-row">
-                    <strong>Nível 3 — Diretoria</strong>
-                    <span class="vf-tl-date">Pendente</span>
-                  </div>
-                  <div class="vf-tl-meta">—</div>
-                </div>
-              </li> -->
-            </ol>
+            <div id="aprovacoes"></div>
           </div>
         </div>
       </div>
