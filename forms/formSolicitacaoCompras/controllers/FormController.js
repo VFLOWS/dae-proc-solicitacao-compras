@@ -170,23 +170,40 @@ class FormController {
 
       if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
         var idx = Util.getIdx(idSelecionado, "produto");
-        Util.setVal("descricao___" + idx, zoomItem["codigo"] || "");
-        Util.setVal("unidade___" + idx, zoomItem["unidade"] || "");
-        Util.setVal("armazem___" + idx, zoomItem["armazem"] || "");
+        Util.setVal("descricao___" + idx, zoomItem["B1_COD"] || "");
+        Util.setVal("unidade___" + idx, zoomItem["B1_UM"] || "");
+        Util.setVal("armazem___" + idx, zoomItem["B1_GRUPO"] || "");
 
         // Pré-preencher Conta/CC (usuário pode trocar)
         if (zoomItem["contaContabil"]) {
           Util.safeSetZoomValue("contaContabil___" + idx, {
-            codigo: zoomItem["contaContabil"],
-            descricao: zoomItem["contaContabil"]
+            "CT1_CONTA": zoomItem["B1_CONTA"],
+            "CT1_DESC01": zoomItem["B1_CONTA"]
           });
         }
         if (zoomItem["centroCusto"]) {
           Util.safeSetZoomValue("centroCusto___" + idx, {
-            codigo: zoomItem["centroCusto"],
-            descricao: zoomItem["centroCusto"]
+            "CTT_CUSTO": zoomItem["B1_CCCUSTO"],
+            "CTT_DESC01": zoomItem["B1_CCCUSTO"]
           });
         }
+      }
+      if (idSelecionado.indexOf("contaContabil___") === 0 || idSelecionado === "contaContabil") {
+        var idx = Util.getIdx(idSelecionado, "contaContabil");
+        Util.setVal("hidden_contaContabil___" + idx, zoomItem["CT1_CONTA"] || "");
+      }
+      if (idSelecionado.indexOf("centroCusto___") === 0 || idSelecionado === "centroCusto") {
+        var idx = Util.getIdx(idSelecionado, "centroCusto");
+        Util.setVal("hidden_centroCusto___" + idx, zoomItem["CTT_CUSTO"] || "");
+        Util.setVal("armazem___" + idx, zoomItem["CTT_FILIAL"] || "");
+      }
+      if (idSelecionado.indexOf("codComprador___") === 0 || idSelecionado === "codComprador") {
+        var idx = Util.getIdx(idSelecionado, "codComprador");
+        Util.setVal("hidden_codComprador___" + idx, zoomItem["Y1_COD"] || "");
+      }
+      if (idSelecionado.indexOf("filialEntrega___") === 0 || idSelecionado === "filialEntrega") {
+        var idx = Util.getIdx(idSelecionado, "filialEntrega");
+        Util.setVal("hidden_filialEntrega___" + idx, zoomItem["Y1_COD"] || "");
       }
 
 
@@ -198,13 +215,26 @@ class FormController {
         Util.setVal("unidade___" + idx, "");
         Util.setVal("armazem___" + idx, "");
       }
-
-      if (zoomItem["contaContabil"]) {
-
+      
+      if (idSelecionado.indexOf("contaContabil___") === 0 || idSelecionado === "contaContabil") {
+        var idx = Util.getIdx(idSelecionado, "contaContabil");
+        Util.setVal("hidden_contaContabil___" + idx, "");
       }
-
-      if (zoomItem["centroCusto"]) {
-
+      
+      if (idSelecionado.indexOf("centroCusto___") === 0 || idSelecionado === "centroCusto") {
+        var idx = Util.getIdx(idSelecionado, "centroCusto");
+        Util.setVal("hidden_centroCusto___" + idx, "");
+        Util.setVal("armazem___" + idx, "");
+      }
+      
+      if (idSelecionado.indexOf("codComprador___") === 0 || idSelecionado === "codComprador") {
+        var idx = Util.getIdx(idSelecionado, "codComprador");
+        Util.setVal("hidden_codComprador___" + idx, "");
+      }
+      
+      if (idSelecionado.indexOf("filialEntrega___") === 0 || idSelecionado === "filialEntrega") {
+        var idx = Util.getIdx(idSelecionado, "filialEntrega");
+        Util.setVal("hidden_filialEntrega___" + idx, "");
       }
 
     }
