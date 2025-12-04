@@ -85,26 +85,28 @@ class FormController {
     $(`#valorUn___${indexLinhaCriada}`).on("change", function (data) {
       var quantidade = $(`#quantidade___${indexLinhaCriada}`).val();
       var valor = data.target.value;
-      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
-        minimumFractionDigits: 2
-      }));
-      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
-        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
-      }
+        var total = (quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.'))).toFixed(2);
+        $(`#valorTotal___${indexLinhaCriada}`).val(parseFloat(total).toLocaleString('pt-br', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
+        if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+          $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+        }
     })
     $(`#quantidade___${indexLinhaCriada}`).on("change", function (data) {
       var valor = $(`#valorUn___${indexLinhaCriada}`).val();
       var quantidade = data.target.value;
-      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
-        minimumFractionDigits: 2
-      }));
-      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
-        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
-      }
+        var total = (quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.'))).toFixed(2);
+        $(`#valorTotal___${indexLinhaCriada}`).val(parseFloat(total).toLocaleString('pt-br', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
+        if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+          $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+        }
     })
-     $('.real').mask('#.##0,00', {
+    $('.real').mask('#.##0,00', {
       reverse: true,
       placeholder: '0,00'
     });
@@ -170,6 +172,7 @@ class FormController {
 
       if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
         var idx = Util.getIdx(idSelecionado, "produto");
+        Util.setVal("hidden_produto___" + idx, zoomItem["B1_COD"] || "");
         Util.setVal("descricao___" + idx, zoomItem["B1_COD"] || "");
         Util.setVal("unidade___" + idx, zoomItem["B1_UM"] || "");
         Util.setVal("armazem___" + idx, zoomItem["B1_GRUPO"] || "");
@@ -197,13 +200,11 @@ class FormController {
         Util.setVal("hidden_centroCusto___" + idx, zoomItem["CTT_CUSTO"] || "");
         Util.setVal("armazem___" + idx, zoomItem["CTT_FILIAL"] || "");
       }
-      if (idSelecionado.indexOf("codComprador___") === 0 || idSelecionado === "codComprador") {
-        var idx = Util.getIdx(idSelecionado, "codComprador");
-        Util.setVal("hidden_codComprador___" + idx, zoomItem["Y1_COD"] || "");
+      if (idSelecionado === "codComprador") {
+        Util.setVal("hidden_codComprador", zoomItem["Y1_COD"] || "");
       }
-      if (idSelecionado.indexOf("filialEntrega___") === 0 || idSelecionado === "filialEntrega") {
-        var idx = Util.getIdx(idSelecionado, "filialEntrega");
-        Util.setVal("hidden_filialEntrega___" + idx, zoomItem["Y1_COD"] || "");
+      if (idSelecionado === "filialEntrega") {
+        Util.setVal("hidden_filialEntrega", zoomItem["M0_CODIGO"] || "");
       }
 
 
@@ -211,30 +212,29 @@ class FormController {
 
       if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
         var idx = Util.getIdx(idSelecionado, "produto");
+        Util.setVal("hidden_produto___" + idx, "");
         Util.setVal("descricao___" + idx, "");
         Util.setVal("unidade___" + idx, "");
         Util.setVal("armazem___" + idx, "");
       }
-      
+
       if (idSelecionado.indexOf("contaContabil___") === 0 || idSelecionado === "contaContabil") {
         var idx = Util.getIdx(idSelecionado, "contaContabil");
         Util.setVal("hidden_contaContabil___" + idx, "");
       }
-      
+
       if (idSelecionado.indexOf("centroCusto___") === 0 || idSelecionado === "centroCusto") {
         var idx = Util.getIdx(idSelecionado, "centroCusto");
         Util.setVal("hidden_centroCusto___" + idx, "");
         Util.setVal("armazem___" + idx, "");
       }
-      
-      if (idSelecionado.indexOf("codComprador___") === 0 || idSelecionado === "codComprador") {
-        var idx = Util.getIdx(idSelecionado, "codComprador");
-        Util.setVal("hidden_codComprador___" + idx, "");
+
+
+      if (idSelecionado === "codComprador") {
+        Util.setVal("hidden_codComprador", "");
       }
-      
-      if (idSelecionado.indexOf("filialEntrega___") === 0 || idSelecionado === "filialEntrega") {
-        var idx = Util.getIdx(idSelecionado, "filialEntrega");
-        Util.setVal("hidden_filialEntrega___" + idx, "");
+      if (idSelecionado === "filialEntrega") {
+        Util.setVal("hidden_filialEntrega", "");
       }
 
     }
@@ -269,50 +269,72 @@ class FormController {
 
           html += `<ol class="vf-tl-list">`
 
-          var nome = this.consultaNome(aprovacoes[i][numsc][j]["matricula"])
+          var nome = this.consultaNome(aprovacoes[i][numsc][j]["IDFLUIG"])
+          var crStatus = aprovacoes[i][numsc][j]["CR_STATUS"]
+          var alItem = aprovacoes[i][numsc][j]["AL_ITEM"] // Usar AL_ITEM como ordem
+          var idFluig = aprovacoes[i][numsc][j]["IDFLUIG"]
+          
+          // Busca a justificativa específica deste aprovador nos painéis de histórico
+          var justificativaAprovador = "Pendente";
+          
+          // Para status pendente, busca no campo atual se for o aprovador atual
+          if (crStatus == "02") {
+            var usuarioAtual = $("#loginSolicitante").val(); // ou a variável que identifica o usuário atual
+            if (idFluig === usuarioAtual) {
+            var justificativa = $("#justificativaAprov").val();
+            justificativaAprovador = justificativa ? `- ${justificativa}` : "Pendente";
+            } else {
+            justificativaAprovador = "Pendente";
+            }
+          } else {
+          // Para aprovadores que já finalizaram, busca a justificativa no histórico
+          var justificativa = aprovacoes[i][numsc][j]["CR_OBS"];
+          justificativaAprovador = justificativa ? `- ${justificativa}` : (crStatus == "03" ? "Aprovado" : "Rejeitado");
+          }
 
-          if (aprovacoes[i][numsc][j]["status"] == "pendente") {
+          // CR_STATUS: "02" = pendente, "03" = liberado, "06" = rejeitado
+          if (crStatus == "02") {
             html += `
                 <li class="vf-tl-item vf-st-pendente">
                   <div class="vf-tl-marker"><span class="fluigicon fluigicon-time icon-sm"></span></div>
                   <div class="vf-tl-content">
                     <div class="vf-tl-row">
-                      <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
-                      <span class="vf-tl-date">Pendente</span>
+                      <strong>Nível ${alItem} - ${nome}</strong>
+                      <span class="vf-tl-date">↻</span>
                     </div>
-                    <div class="vf-tl-meta"> ---</div>
+                    <div class="vf-tl-meta"> Pendente </div>
                   </div>
                 </li>
             `
           }
 
-          if (aprovacoes[i][numsc][j]["status"] == "aprovado") {
+          if (crStatus == "03") {
             html += `
                 <li class="vf-tl-item vf-st-aprovado">
                   <div class="vf-tl-marker"><span class="fluigicon fluigicon-check icon-sm"></span></div>
                   <div class="vf-tl-content">
                     <div class="vf-tl-row">
-                      <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
-                      <span class="vf-tl-date">${aprovacoes[i][numsc][j]["horario"]}</span>
+                      <strong>Nível ${alItem} - ${nome}</strong>
+                      <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_DATA_ATUAL"] || aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
                     </div>
                     <div class="vf-tl-meta">${nome}</div>
-                    <div class="vf-tl-note">${aprovacoes[i][numsc][j]["comentario"]}</div>
+                    <div class="vf-tl-note">Aprovado ${justificativaAprovador}</div>
                   </div>
                 </li>
             `
           }
 
-          if (aprovacoes[i][numsc][j]["status"] == "reprovado") {
+          if (crStatus == "06") {
             html += `
                  <li class="vf-tl-item vf-st-reprovado">
                     <div class="vf-tl-marker"><span class="fluigicon fluigicon-remove icon-sm"></span></div>
                     <div class="vf-tl-content">
                       <div class="vf-tl-row">
-                        <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
-                        <span class="vf-tl-date">${aprovacoes[i][numsc][j]["horario"]}</span>
+                        <strong>Nível ${alItem} - ${nome}</strong>
+                        <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_DATA_ATUAL"] || aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
                       </div>
                       <div class="vf-tl-meta">${nome}</div>
-                      <div class="vf-tl-note">${aprovacoes[i][numsc][j]["comentario"]}</div>
+                      <div class="vf-tl-note">Reprovado ${justificativaAprovador}</div>
                     </div>
                   </li>
             `
@@ -328,7 +350,7 @@ class FormController {
           </div>
       `
 
-      $("#aprovacoes").append(html)
+        $("#aprovacoes").append(html)
       }
 
     }
@@ -481,6 +503,23 @@ class FormController {
       if ($(`#${indexHistorico}_hidden_decisao`).val() == "REPROVAR") {
         $(`#${indexHistorico}_decisao_reprovar`).attr('checked', 'checked')
         $(`label[for="${indexHistorico}_decisao_reprovar"]`).css({
+          "background": "#b91c1c",
+          "border-color": "#b91c1c",
+          "color": "#fff"
+        })
+      }
+
+      if ($(`#${indexHistorico}_hidden_decisao_cancelar`).val() == "CANCELAR") {
+        $(`#${indexHistorico}_decisao_cancelar_sim`).attr('checked', 'checked')
+        $(`label[for="${indexHistorico}_decisao_cancelar_sim"]`).css({
+          "background": "#15803d",
+          "border-color": "#15803d",
+          "color": "#fff"
+        })
+      }
+      if ($(`#${indexHistorico}_hidden_decisao_cancelar`).val() == "NAOCANCELAR") {
+        $(`#${indexHistorico}_decisao_cancelar_nao`).attr('checked', 'checked')
+        $(`label[for="${indexHistorico}_decisao_cancelar_nao"]`).css({
           "background": "#b91c1c",
           "border-color": "#b91c1c",
           "color": "#fff"
