@@ -260,7 +260,7 @@ function atualizarHistoricoNrSC(numeroSC) {
 		log.info("📄 JSON original: " + valuesCampos);
 		
 		try {
-			// Fazer parse do JSON teste teste
+			// Fazer parse do JSON 
 			var objValues = JSON.parse(valuesCampos);
 			
 			// Atualizar o campo 1_nrSC
