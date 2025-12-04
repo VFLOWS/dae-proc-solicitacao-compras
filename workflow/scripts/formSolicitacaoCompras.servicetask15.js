@@ -260,11 +260,12 @@ function atualizarHistoricoNrSC(numeroSC) {
 		log.info("📄 JSON original: " + valuesCampos);
 		
 		try {
-			// Fazer parse do JSON
+			// Fazer parse do JSON teste teste
 			var objValues = JSON.parse(valuesCampos);
 			
 			// Atualizar o campo 1_nrSC
 			objValues["1_nrSC"] = numeroSC;
+
 			
 			// Converter de volta para JSON e salvar usando JSONUtil do Fluig
 			var novoJSON = JSONUtil.toJSON(objValues);
