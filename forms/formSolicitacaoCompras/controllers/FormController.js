@@ -85,24 +85,26 @@ class FormController {
     $(`#valorUn___${indexLinhaCriada}`).on("change", function (data) {
       var quantidade = $(`#quantidade___${indexLinhaCriada}`).val();
       var valor = data.target.value;
-      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
-        minimumFractionDigits: 2
-      }));
-      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
-        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
-      }
+        var total = (quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.'))).toFixed(2);
+        $(`#valorTotal___${indexLinhaCriada}`).val(parseFloat(total).toLocaleString('pt-br', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
+        if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+          $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+        }
     })
     $(`#quantidade___${indexLinhaCriada}`).on("change", function (data) {
       var valor = $(`#valorUn___${indexLinhaCriada}`).val();
       var quantidade = data.target.value;
-      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
-        minimumFractionDigits: 2
-      }));
-      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
-        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
-      }
+        var total = (quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.'))).toFixed(2);
+        $(`#valorTotal___${indexLinhaCriada}`).val(parseFloat(total).toLocaleString('pt-br', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
+        if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+          $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+        }
     })
     $('.real').mask('#.##0,00', {
       reverse: true,
@@ -270,6 +272,25 @@ class FormController {
           var nome = this.consultaNome(aprovacoes[i][numsc][j]["IDFLUIG"])
           var crStatus = aprovacoes[i][numsc][j]["CR_STATUS"]
           var alItem = aprovacoes[i][numsc][j]["AL_ITEM"] // Usar AL_ITEM como ordem
+          var idFluig = aprovacoes[i][numsc][j]["IDFLUIG"]
+          
+          // Busca a justificativa específica deste aprovador nos painéis de histórico
+          var justificativaAprovador = "Pendente";
+          
+          // Para status pendente, busca no campo atual se for o aprovador atual
+          if (crStatus == "02") {
+            var usuarioAtual = $("#loginSolicitante").val(); // ou a variável que identifica o usuário atual
+            if (idFluig === usuarioAtual) {
+            var justificativa = $("#justificativaAprov").val();
+            justificativaAprovador = justificativa ? `- ${justificativa}` : "Pendente";
+            } else {
+            justificativaAprovador = "Pendente";
+            }
+          } else {
+          // Para aprovadores que já finalizaram, busca a justificativa no histórico
+          var justificativa = aprovacoes[i][numsc][j]["CR_OBS"];
+          justificativaAprovador = justificativa ? `- ${justificativa}` : (crStatus == "03" ? "Aprovado" : "Rejeitado");
+          }
 
           // CR_STATUS: "02" = pendente, "03" = liberado, "06" = rejeitado
           if (crStatus == "02") {
@@ -279,9 +300,9 @@ class FormController {
                   <div class="vf-tl-content">
                     <div class="vf-tl-row">
                       <strong>Nível ${alItem} - ${nome}</strong>
-                      <span class="vf-tl-date">Pendente</span>
+                      <span class="vf-tl-date">↻</span>
                     </div>
-                    <div class="vf-tl-meta"> ---</div>
+                    <div class="vf-tl-meta"> Pendente </div>
                   </div>
                 </li>
             `
@@ -294,10 +315,10 @@ class FormController {
                   <div class="vf-tl-content">
                     <div class="vf-tl-row">
                       <strong>Nível ${alItem} - ${nome}</strong>
-                      <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
+                      <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_DATA_ATUAL"] || aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
                     </div>
                     <div class="vf-tl-meta">${nome}</div>
-                    <div class="vf-tl-note">Liberado</div>
+                    <div class="vf-tl-note">Aprovado ${justificativaAprovador}</div>
                   </div>
                 </li>
             `
@@ -310,10 +331,10 @@ class FormController {
                     <div class="vf-tl-content">
                       <div class="vf-tl-row">
                         <strong>Nível ${alItem} - ${nome}</strong>
-                        <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
+                        <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_DATA_ATUAL"] || aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
                       </div>
                       <div class="vf-tl-meta">${nome}</div>
-                      <div class="vf-tl-note">Rejeitado</div>
+                      <div class="vf-tl-note">Reprovado ${justificativaAprovador}</div>
                     </div>
                   </li>
             `

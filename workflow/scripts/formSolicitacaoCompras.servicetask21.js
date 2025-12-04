@@ -99,7 +99,19 @@ function verificarAprovacao() {
 			) {
 				// Marcar como liberado (status 03 = aprovado)
 				obj[versao - 1][numeroSCBusca][i]["CR_STATUS"] = "03";
-				log.info("✅ Aprovador " + i + " marcado como LIBERADO (CR_STATUS=03)");
+				// Salvar a justificativa/comentário do aprovador
+				obj[versao - 1][numeroSCBusca][i]["CR_OBS"] = comentario || "Aprovado";
+				// Salvar a data/hora atual da aprovação
+				var agora = new Date();
+				var horas = agora.getHours() < 10 ? "0" + agora.getHours() : agora.getHours();
+				var minutos = agora.getMinutes() < 10 ? "0" + agora.getMinutes() : agora.getMinutes();
+				var segundos = agora.getSeconds() < 10 ? "0" + agora.getSeconds() : agora.getSeconds();
+				var dia = agora.getDate() < 10 ? "0" + agora.getDate() : agora.getDate();
+				var mes = (agora.getMonth() + 1) < 10 ? "0" + (agora.getMonth() + 1) : (agora.getMonth() + 1);
+				var ano = agora.getFullYear();
+				var dataAtual = horas + ":" + minutos + ":" + segundos + " " + dia + "/" + mes + "/" + ano;
+				obj[versao - 1][numeroSCBusca][i]["CR_DATA_ATUAL"] = dataAtual;
+				log.info("✅ Aprovador " + i + " marcado como LIBERADO (CR_STATUS=03) com justificativa: " + (comentario || "Aprovado") + " em " + dataAtual);
 				if (i != len) {
 					hAPI.setCardValue("matriculaAssinante", obj[versao - 1][numeroSCBusca][i+1]["IDFLUIG"])
 					log.info("👤 Próximo responsável: " + obj[versao - 1][numeroSCBusca][i+1]["IDFLUIG"]);
@@ -114,7 +126,19 @@ function verificarAprovacao() {
 			) {
 				// Marcar como rejeitado (status 06 = reprovado)
 				obj[versao - 1][numeroSCBusca][i]["CR_STATUS"] = "06";
-				log.info("❌ Aprovador " + i + " marcado como REJEITADO (CR_STATUS=06)");
+				// Salvar a justificativa/comentário do aprovador
+				obj[versao - 1][numeroSCBusca][i]["CR_OBS"] = comentario || "Rejeitado";
+				// Salvar a data/hora atual da reprovação
+				var agora = new Date();
+				var horas = agora.getHours() < 10 ? "0" + agora.getHours() : agora.getHours();
+				var minutos = agora.getMinutes() < 10 ? "0" + agora.getMinutes() : agora.getMinutes();
+				var segundos = agora.getSeconds() < 10 ? "0" + agora.getSeconds() : agora.getSeconds();
+				var dia = agora.getDate() < 10 ? "0" + agora.getDate() : agora.getDate();
+				var mes = (agora.getMonth() + 1) < 10 ? "0" + (agora.getMonth() + 1) : (agora.getMonth() + 1);
+				var ano = agora.getFullYear();
+				var dataAtual = horas + ":" + minutos + ":" + segundos + " " + dia + "/" + mes + "/" + ano;
+				obj[versao - 1][numeroSCBusca][i]["CR_DATA_ATUAL"] = dataAtual;
+				log.info("❌ Aprovador " + i + " marcado como REJEITADO (CR_STATUS=06) com justificativa: " + (comentario || "Rejeitado") + " em " + dataAtual);
 				break;
 			}
 		}

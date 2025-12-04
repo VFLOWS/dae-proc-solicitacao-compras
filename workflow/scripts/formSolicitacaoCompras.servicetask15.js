@@ -68,6 +68,10 @@ function criaSC(dataSolicitacao) {
 
 		if (status == "OK" && /^[0-9]+$/.test(numero)) {
 			hAPI.setCardValue("nrSC", numero);
+
+			// Atualizar o campo nrSC no histórico que já foi salvo
+			atualizarHistoricoNrSC(numero);
+			
 			log.info("✅ SC criada com sucesso. Número: " + numero);
 			return true;
 
@@ -136,6 +140,9 @@ function atualizaSC(numSC, dataSolicitacao) {
 			log.error(errorMsg);
 			throw errorMsg;
 		} else {
+			// Atualizar o campo nrSC no histórico que já foi salvo
+			atualizarHistoricoNrSC(numSC);
+			
 			log.info("✅ SC atualizada com sucesso. Número: " + numSC);
 		}
 	} else {
@@ -236,4 +243,46 @@ function geraObjetoSC(dataSolicitacao, numSC) {
 	log.info("===================");
 	
 	return obj
+}
+
+function atualizarHistoricoNrSC(numeroSC) {
+	try {
+		log.info("🔄 Iniciando atualização do campo nrSC no histórico com valor: " + numeroSC);
+		
+		// Buscar o JSON de valores da primeira linha de histórico
+		var valuesCampos = hAPI.getCardValue("valuesCamposHistorico___1");
+		
+		if (!valuesCampos || valuesCampos == "") {
+			log.info("⚠️ valuesCamposHistorico___1 está vazio");
+			return;
+		}
+		
+		log.info("📄 JSON original: " + valuesCampos);
+		
+		try {
+			// Fazer parse do JSON
+			var objValues = JSON.parse(valuesCampos);
+			
+			// Atualizar o campo 1_nrSC
+			objValues["1_nrSC"] = numeroSC;
+			
+			// Converter de volta para JSON e salvar usando JSONUtil do Fluig
+			var novoJSON = JSONUtil.toJSON(objValues);
+			hAPI.setCardValue("valuesCamposHistorico___1", novoJSON);
+			
+			log.info("✅ Campo 1_nrSC atualizado no histórico com valor: " + numeroSC);
+			log.info("📄 JSON atualizado: " + novoJSON);
+			
+		} catch (e) {
+			log.error("❌ Erro ao processar JSON: " + e.message);
+			log.error("❌ JSON recebido: " + valuesCampos);
+		}
+		
+		log.info("✅ Atualização do histórico concluída");
+		
+	} catch (e) {
+		log.error("❌ Erro ao atualizar histórico: " + e.message);
+		log.error("❌ Stack trace: " + e.stack);
+		// Não vamos lançar exceção para não interromper o fluxo principal
+	}
 }

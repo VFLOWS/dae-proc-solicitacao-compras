@@ -206,7 +206,7 @@
         <graphicsAlgorithm cornerHeight="5" cornerWidth="5" height="98" lineWidth="1" style="/0/@styles.78" transparency="0.0" width="106" xsi:type="al:RoundedRectangle"/>
       </children>
       <children visible="true">
-        <graphicsAlgorithm filled="false" font="/0/@fonts.1" height="88" horizontalAlignment="ALIGNMENT_CENTER" lineVisible="true" lineWidth="1" style="/0/@styles.79" transparency="0.0" value="Gerar Aprovadores - TOTVS Protheus" width="96" x="5" xsi:type="al:MultiText" y="5"/>
+        <graphicsAlgorithm filled="false" font="/0/@fonts.1" height="88" horizontalAlignment="ALIGNMENT_CENTER" lineVisible="true" lineWidth="1" style="/0/@styles.79" transparency="0.0" value="Buscar Aprovadores - TOTVS Protheus" width="96" x="5" xsi:type="al:MultiText" y="5"/>
       </children>
       <children visible="true">
         <graphicsAlgorithm height="16" id="com.totvs.tds.ecm.designer.task.service" lineWidth="1" proportional="false" stretchH="false" stretchV="false" transparency="0.0" width="16" x="5" xsi:type="al:Image" y="5"/>
@@ -3169,7 +3169,7 @@
     <fonts name="Arial" size="8"/>
     <fonts bold="true" name="Arial" size="8"/>
   </pi:Diagram>
-  <bpmn2:BpmnProcess author="" cardIndex="212" category="" complementsLevel="1" expedient="Default" extendedFields="&lt;list/&gt;" formSource="server" id="formSolicitacaoCompras" instruction="" keyWord="" managerAssignmentController="&lt;org.eclipse.bpmn2.impl.AssignmentControllerRole&gt;&#10;  &lt;roleId&gt;admin&lt;/roleId&gt;&#10;  &lt;mechanismName&gt;Papel&lt;/mechanismName&gt;&#10;&lt;/org.eclipse.bpmn2.impl.AssignmentControllerRole&gt;" managerMechanism="Papel" name="Solicita&#231;&#227;o de Compras" notifyRequisitionerComplements="true" notifyResponsibleComplements="true" serverId="DAE" version="96" volume="Default"/>
+  <bpmn2:BpmnProcess author="" cardIndex="212" category="" complementsLevel="1" expedient="Default" extendedFields="&lt;list/&gt;" formSource="server" id="formSolicitacaoCompras" instruction="" keyWord="" managerAssignmentController="&lt;org.eclipse.bpmn2.impl.AssignmentControllerRole&gt;&#10;  &lt;roleId&gt;admin&lt;/roleId&gt;&#10;  &lt;mechanismName&gt;Papel&lt;/mechanismName&gt;&#10;&lt;/org.eclipse.bpmn2.impl.AssignmentControllerRole&gt;" managerMechanism="Papel" name="Solicita&#231;&#227;o de Compras" notifyRequisitionerComplements="true" notifyResponsibleComplements="true" serverId="DAE" version="110" volume="Default"/>
   <bpmn2:BpmnPool cores="FFFFFF" id="pool1" name="Solicita&#231;&#227;o de Compras"/>
   <bpmn2:BpmnSwimLane cores="FFFFB9" id="swimlane2" name="Solicitante"/>
   <bpmn2:BpmnSwimLane cores="C0C0C0" id="swimlane3" name="Aprovadores"/>
@@ -3196,7 +3196,7 @@
   <bpmn2:BpmnPool id="pool31" name="Pool"/>
   <bpmn2:BpmnSwimLane cores="adc9ac" id="swimlane32" name="Erros"/>
   <bpmn2:SequenceFlow atividadeFluxo="" atividadeRetorno="" extendedFields="&lt;list/&gt;" id="flow33" name="Nova Aprova&#231;&#227;o" sourceRef="exclusivegateway8" targetRef="task5"/>
-  <bpmn2:BpmnTask attachedEvents="intermediateerror38" authNotify="true" esforcoCalculo="0" executionAttempts="0" executionSucessfulMessage="Integra&#231;&#227;o executada com sucesso" executionType="1" expediente="" frequency="0" id="servicetask34" incoming="flow35 flow40" loopType="0" name="Gerar Aprovadores - TOTVS Protheus" outgoing="flow36" scriptFileName="formSolicitacaoCompras.servicetask34.js" selecionaColaboradores="1" serviceName="" type="82"/>
+  <bpmn2:BpmnTask attachedEvents="intermediateerror38" authNotify="true" emAtrasoNotificarResponsavel="false" emAtrasoNotificarResponsavelFrequencia="0.0" emAtrasoNotificarResponsavelTolerancia="0.0" esforcoCalculo="0" executionSucessfulMessage="Integra&#231;&#227;o executada com sucesso" executionType="1" expediente="" id="servicetask34" incoming="flow35 flow40" loopType="0" name="Buscar Aprovadores - TOTVS Protheus" outgoing="flow36" scriptFileName="formSolicitacaoCompras.servicetask34.js" selecionaColaboradores="1" serviceName="" type="82"/>
   <bpmn2:SequenceFlow atividadeFluxo="" atividadeRetorno="" extendedFields="&lt;list/&gt;" id="flow35" name="" sourceRef="servicetask15" targetRef="servicetask34"/>
   <bpmn2:SequenceFlow atividadeFluxo="" atividadeRetorno="" extendedFields="&lt;list/&gt;" id="flow36" name="" sourceRef="servicetask34" targetRef="task5"/>
   <bpmn2:BpmnTask authNotify="true" esforcoCalculo="0" executionAttempts="0" expediente="" frequency="0" id="task37" incoming="flow39" loopType="0" name="Verificar Erro Aprovadores" outgoing="flow40" selecionaColaboradores="1" type="80"/>

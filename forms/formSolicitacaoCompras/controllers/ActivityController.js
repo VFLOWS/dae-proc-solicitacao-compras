@@ -403,4 +403,7 @@ class ActivityController {
 
   _validateActivityFim(numState, nexState) { }
 
+
+   _validateActivityI(numState, nexState) { }
+
 }
