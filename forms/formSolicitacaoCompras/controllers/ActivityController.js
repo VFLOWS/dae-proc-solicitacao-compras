@@ -23,8 +23,14 @@ class Activity {
   static get VERIFICA_ATUALIZA_APROVACAO() {
     return 23;
   }
+  static get VERIFICA_APROVADORES() {
+    return 37;
+  }
   static get FIM() {
     return 7;
+  }
+  static get CANCELADO() {
+    return 44;
   }
 }
 
@@ -34,10 +40,12 @@ class ActivityController {
       [Activity.INICIO]: this._controllerActivityInicio,
       [Activity.INICIO_PADRAO]: this._controllerActivityInicio,
       [Activity.APROVACAO]: this._controllerActivityAprovacao,
-      [Activity.CORRIGIR]: this._controllerActivityInicio,
+      [Activity.CORRIGIR]: this._controllerActivityCorrigir,
       [Activity.FIM]: this._controllerActivityFim,
+      [Activity.CANCELADO]: this._controllerActivityFim,
       [Activity.INTEGRACAO_PROTHEUS]: this._controllerActivityFim,
       [Activity.VERIFICA_INTEGRACAO_PROTHEUS]: this._controllerActivityFim,
+      [Activity.VERIFICA_APROVADORES]: this._controllerActivityFim,
       [Activity.ATUALIZA_APROVACAO]: this._controllerActivityFim,
       [Activity.VERIFICA_ATUALIZA_APROVACAO]: this._controllerActivityFim,
     }
@@ -45,11 +53,13 @@ class ActivityController {
     this._activityView = {
       [Activity.INICIO]: this._viewActivityInicio,
       [Activity.INICIO_PADRAO]: this._viewActivityInicio,
-      [Activity.CORRIGIR]: this._viewActivityInicio,
+      [Activity.CORRIGIR]: this._viewActivityCorrigir,
       [Activity.APROVACAO]: this._viewActivityAprovacao,
       [Activity.FIM]: this._viewActivityFim,
+      [Activity.CANCELADO]: this._viewActivityFim,
       [Activity.INTEGRACAO_PROTHEUS]: this._viewActivityFim,
       [Activity.VERIFICA_INTEGRACAO_PROTHEUS]: this._viewActivityFim,
+       [Activity.VERIFICA_APROVADORES]: this._viewActivityFim,
       [Activity.ATUALIZA_APROVACAO]: this._viewActivityFim,
       [Activity.VERIFICA_ATUALIZA_APROVACAO]: this._viewActivityFim,
     }
@@ -58,10 +68,12 @@ class ActivityController {
       [Activity.INICIO]: this._validateActivityInicio,
       [Activity.INICIO_PADRAO]: this._validateActivityInicio,
       [Activity.APROVACAO]: this._validateActivityAprovacao,
-      [Activity.CORRIGIR]: this._validateActivityInicio,
+      [Activity.CORRIGIR]: this._validateActivityCorrigir,
       [Activity.FIM]: this._validateActivityFim,
+      [Activity.CANCELADO]: this._validateActivityFim,
       [Activity.INTEGRACAO_PROTHEUS]: this._validateActivityFim,
       [Activity.VERIFICA_INTEGRACAO_PROTHEUS]: this._validateActivityFim,
+      [Activity.VERIFICA_APROVADORES]: this._validateActivityFim,
       [Activity.ATUALIZA_APROVACAO]: this._validateActivityFim,
       [Activity.VERIFICA_ATUALIZA_APROVACAO]: this._validateActivityFim,
     }
@@ -73,6 +85,9 @@ class ActivityController {
   }
 
   _controllerActivityInicio(formMode, atividade, formView, formController) {
+
+    // Reforçar para manter a div de cancelar oculta
+    $("#divCancelarDecisao").addClass('hidden');
 
     window.rowIndex['tbItens'] > 0 ? $("#tbItens tr").not(':first').not(':first').show() : ""
     if (atividade == 11) {
@@ -105,10 +120,7 @@ class ActivityController {
     $('.has-error').removeClass('has-error');
     try {
 
-      if (Util.estaVazio($("#hidden_unidRequis").val())) {
-        $("#hidden_unidRequis").parent('div').addClass('has-error');
-        errorMsg += 'Informe a Unidade do Requisitante.' + endOfLine;
-      }
+      
 
       if (Util.estaVazio($("#hidden_codComprador").val())) {
         $("#hidden_codComprador").parent('div').addClass('has-error');
@@ -123,6 +135,130 @@ class ActivityController {
       if (Util.estaVazio($("#justificativaSC").val())) {
         $("#justificativaSC").parent('div').addClass('has-error');
         errorMsg += 'Informe a Justificativa.' + endOfLine;
+      }
+
+      if (window.rowIndex['tbItens'] == 0) {
+        $('#botaoAdicionarProduto').removeClass('btn-info');
+        $('#botaoAdicionarProduto').addClass('btn-danger');
+        errorMsg += 'Adicione pelo menos um Item da SC.' + endOfLine;
+      } else {
+        $('#tbItens').each((key, linhaTabela) => {
+          let elementInput = $(linhaTabela).find('[name^="hidden_produto_"]');
+          if (Util.estaVazio($(elementInput).val())) {
+            $(elementInput).parent().addClass('has-error');
+            errorMsg += 'Informe o Produto na posição nº: ' + (key + 1) + endOfLine;
+          }
+          elementInput = $(linhaTabela).find('[name^="hidden_contaContabil_"]');
+          if (Util.estaVazio($(elementInput).val())) {
+            $(elementInput).parent().addClass('has-error');
+            errorMsg += 'Informe a Conta Contábil na posição nº: ' + (key + 1) + endOfLine;
+          }
+          elementInput = $(linhaTabela).find('[name^="hidden_centroCusto_"]');
+          if (Util.estaVazio($(elementInput).val())) {
+            $(elementInput).parent().addClass('has-error');
+            errorMsg += 'Informe o Centro de Custo na posição nº: ' + (key + 1) + endOfLine;
+          }
+          elementInput = $(linhaTabela).find('[name^="quantidade_"]');
+          if (Util.estaVazio($(elementInput).val())) {
+            $(elementInput).parent().addClass('has-error');
+            errorMsg += 'Informe a Quantidade na posição nº: ' + (key + 1) + endOfLine;
+          }
+          elementInput = $(linhaTabela).find('[name^="valorUn___"]');
+          if (Util.estaVazio($(elementInput).val())) {
+            $(elementInput).parent().addClass('has-error');
+            errorMsg += 'Informe o Valor Unitário na posição nº: ' + (key + 1) + endOfLine;
+          }
+        })
+      }
+
+    } catch (error) {
+      if (errorMsg != '') {
+        throw errorMsg;
+      } else {
+        throw 'Erro interno do servidor, recarregue a página utilizando a tecla "F5" e tente novamente. Caso o erro persista informe ao TI quais passos você tomou e a seguinte mensagem: ' + error;
+      }
+    }
+
+    if (errorMsg != '') {
+      throw errorMsg;
+    }
+
+
+
+    if (errorMsg != '') {
+      throw errorMsg;
+    } else {
+      if (WKNumState == 11) {
+        FormController.salvarPainelHistorico('painelSolicitacao', 'dataCorrecao', 'nomeCorrecao')
+      } else FormController.salvarPainelHistorico('painelSolicitacao', 'dataHoraSolic', 'solicitanteNome')
+    };
+  }
+
+
+   _controllerActivityCorrigir(formMode, atividade, formView, formController) {
+
+    // Tornar a div de cancelar visível na correção
+    $("#divCancelarDecisao").removeClass('hidden');
+
+    $("#hidden_decisao_cancelar").val("")
+    $("[name=decisaoCancelar]").prop("checked", false)
+
+    $("[name='decisaoCancelar']").on("click", function (event) {
+      $("#hidden_decisao_cancelar").val($(this).val())
+    })
+
+    window.rowIndex['tbItens'] > 0 ? $("#tbItens tr").not(':first').not(':first').show() : ""
+    if (atividade == 11) {
+      formController.carregaFuncionalidadesTabela()
+      formView.ocultarPainel(
+        Painel.APROVACAO_GERENTE);
+    } else {
+      formView.ocultarPainel(
+        Painel.HISTORICO_APROVACOES,
+        Painel.APROVACAO_GERENTE);
+    }
+
+    Util.destacarAtividadeAtual('#painelSolicitacao');
+  }
+
+  _viewActivityCorrigir(formMode, atividade, formView, formController) {
+    if (atividade == 11) {
+      formView.ocultarPainel(
+        Painel.APROVACAO_GERENTE);
+    } else {
+      formView.ocultarPainel(
+        Painel.HISTORICO_APROVACOES,
+        Painel.APROVACAO_GERENTE);
+    }
+  }
+
+  _validateActivityCorrigir(numState, nexState) {
+    let errorMsg = '';
+    let endOfLine = '</br>';
+    $('.has-error').removeClass('has-error');
+    try {
+
+      
+
+      if (Util.estaVazio($("#hidden_codComprador").val())) {
+        $("#hidden_codComprador").parent('div').addClass('has-error');
+        errorMsg += 'Informe o Comprador.' + endOfLine;
+      }
+
+      if (Util.estaVazio($("#hidden_filialEntrega").val())) {
+        $("#hidden_filialEntrega").parent('div').addClass('has-error');
+        errorMsg += 'Informe a Filial de Entrega.' + endOfLine;
+      }
+
+      if (Util.estaVazio($("#justificativaSC").val())) {
+        $("#justificativaSC").parent('div').addClass('has-error');
+        errorMsg += 'Informe a Justificativa.' + endOfLine;
+      }
+
+      // Validação da decisão de cancelamento
+      if (Util.estaVazio($("#hidden_decisao_cancelar").val())) {
+        $("[name='decisaoCancelar']").closest('.vf-decisao-group').addClass('has-error');
+        errorMsg += 'Informe se deseja cancelar a solicitação.' + endOfLine;
       }
 
       if (window.rowIndex['tbItens'] == 0) {

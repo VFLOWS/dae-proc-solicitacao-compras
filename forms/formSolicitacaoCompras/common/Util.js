@@ -464,5 +464,9 @@ class Util {
     $("#" + zoomId).val("");
     $("#hidden_" + zoomId).val("");
   }
-  static fnCustomDelete(el) { fnWdkRemoveChild(el); }
+
+  static fnCustomDelete(el) { 
+    fnWdkRemoveChild(el); 
+  }
+  
 }

@@ -21,7 +21,7 @@
   <link type="text/css" rel="stylesheet" href="style.css" />
 
   <link href="https://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+  <!--link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css"-->
 
 </head>
 
@@ -123,29 +123,10 @@
 
                 <!-- LINHA ORIGINAL: Unidade, Comprador, Filial -->
                 <div class="row form-group">
-                  <!-- Unidade do Requisitante -->
-                  <div class="col-md-4">
-                    <label for="unidRequis" class="required">Unidade do Requisitante</label>
-                    <input type="zoom" class="form-control" id="unidRequis" name="unidRequis" zoomvalue="codigo"
-                      data-zoom=" { 
-                        'datasetId':'ds_protheus_unidadeRequis',
-                        'displayKey':'descricao',
-                        'placeholder':'Selecione...',
-                        'fields':[
-                        { 'field':'codigo',
-                          'label':'Código',
-                          'visible':'false'
-                        },{
-                          'field':'descricao',
-                          'label':'Descrição',
-                          'standard':true
-                        }
-                        ]}">
-                    <input type="hidden" id="hidden_unidRequis" name="hidden_unidRequis">
-                  </div>
+                  <input type="hidden" id="hidden_unidRequis" name="hidden_unidRequis">
 
                   <!-- Comprador -->
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <label for="codComprador" class="required">Comprador</label>
                     <input type="zoom" class="form-control" id="codComprador" name="codComprador" zoomvalue="codigo"
                       data-zoom="{ 
@@ -167,7 +148,7 @@
                   </div>
 
                   <!-- Filial de Entrega -->
-                  <div class="col-md-4">
+                  <div class="col-md-6">
                     <label for="filialEntrega" class="required">Filial de Entrega</label>
                     <input type="zoom" class="form-control" id="filialEntrega" name="filialEntrega" zoomvalue="codigo"
                       data-zoom="{ 
@@ -199,8 +180,39 @@
                   </div>
 
                 </div>
+                <!-- Painel: Decisão de Cancelamento -->
+                <div class="panel panel-default hidden" id="divCancelarDecisao">
+                  <div class="panel-heading"><strong>Decisão de Cancelamento</strong></div>
+                  <div class="panel-body">
+                    <div class="row" style="margin-bottom:10px;">
+                      <div class="col-md-12">
+                        <label for="decisaoCancelar" id="cancelarDecisao" class="required">Deseja cancelar a
+                          solicitação?</label>
+                        <div class="vf-decisao-group" role="radiogroup" aria-labelledby="cancelarDecisao">
+                          <!-- Importante: input vem antes do label para o seletor CSS :checked + label funcionar -->
+                          <input type="radio" id="decisao_cancelar_sim" name="decisaoCancelar" value="CANCELAR"
+                            required>
+                          <label for="decisao_cancelar_sim" class="vf-decisao vf-approve">
+                            <span class="fluigicon fluigicon-check icon-sm" aria-hidden="true"></span>
+                            Sim
+                          </label>
+
+                          <input type="radio" id="decisao_cancelar_nao" name="decisaoCancelar" value="NAOCANCELAR"
+                            required>
+                          <label for="decisao_cancelar_nao" class="vf-decisao vf-reprove">
+                            <span class="fluigicon fluigicon-remove icon-sm" aria-hidden="true"></span>
+                            Não
+                          </label>
+                          <input type="hidden" name="hidden_decisao_cancelar" id="hidden_decisao_cancelar" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+
+
 
             <div class="help">Preencha os três campos acima antes de incluir itens.</div>
 
@@ -210,7 +222,8 @@
                 <div class="row">
                   <div class="col-sm-6"><strong>Itens da SC</strong></div>
                   <div class="col-sm-6 text-right">
-                    <button type="button" class="btn btn-add btn-sm" onclick="formController.adicionarItem(this)" id="btnAddSC">
+                    <button type="button" class="btn btn-add btn-sm" onclick="formController.adicionarItem(this)"
+                      id="btnAddSC">
                       <span class="fluigicon fluigicon-plus icon-sm"></span> Adicionar item
                     </button>
                   </div>
@@ -218,124 +231,123 @@
               </div>
 
               <div class="panel-body">
-                <div class="table-responsive">
+                <div class="row">
                   <table id="tbItens" tablename="tbItens" class="table table-condensed table-striped"
-                    customFnDelete="fnCustomDelete(this)" noaddbutton=true nodeletebutton=true>
-                    <thead>
+                    customFnDelete="Util.fnCustomDelete(this)" noaddbutton=true>
+                    <!--thead>
                       <tr>
-                        <th class="required">Produto</th>
-                        <th class="w-110">Código Produto</th>
-                        <th class="w-80">UND</th>
-                        <th class="required">Conta Contábil</th>
-                        <th class="required">Centro de Custo</th>
-                        <th class="required w-110">Quantidade</th>
-                        <th class="required">Valor</th>
-                        <th class="">Valor Total</th>
-                        <th class="w-80"></th>
+                        <th class="required col-md-3">Produto</th>
+                        <th class="col-md-1">Código Produto</th>
+                        <th class="col-md-1">UND</th>
+                        <th class="required col-md-2">Conta Contábil</th>
+                        <th class="required col-md-2">Centro de Custo</th>
+                        <th class="required col-md-0.5">Quantidade</th>
+                        <th class="required col-md-1">Valor</th>
+                        <th class="col-md-1">Valor Total</th>
+                        <th class="col-md-0.5"></th>
                       </tr>
-                    </thead>
+                    </thead-->
+                    <thead class="fs-display-none">
+                      <tr class="tableHeadRow">
+                        <th></th>
+                      </tr>
+                    </thead>  
                     <tbody>
-                      <!-- Linha modelo Pai-x-Filho -->
-                      <tr style="display:none" detail="true" detailname="tbItens">
-                        <!-- Produto (zoom) -->
-                        <td>
-                          <input type="zoom" class="form-control" id="produto" name="produto" zoomvalue="codigo"
-                            data-zoom="{ 
-                              'datasetId':'ds_protheus_produto',
-                              'displayKey':'B1_DESC',
-                              'placeholder':'Pesquisar produto...',
-                              'fields':[
-                                {
-                                  'field':'B1_COD',
-                                  'label':'Código',
-                                  'visible':'false'
-                                },{
-                                  'field':'B1_DESC',
-                                  'label':'Descrição',
-                                  'standard':true
-                                },{
-                                  'field':'B1_UM',
-                                  'label':'UM',
-                                  'visible':'false'
-                                },{
-                                  'field':'B1_CONTA',
-                                  'label':'Conta',
-                                  'visible':'false'
-                                },{
-                                  'field':'B1_CCCUSTO',
-                                  'label':'CC',
-                                  'visible':'false'
-                                },{
-                                  'field':'B1_GRUPO',
-                                  'label':'Armazém',
-                                  'visible':'false'
-                                }
-                                ]}">
-                          <input type="hidden" id="hidden_produto" name="hidden_produto">
-                        </td>
-
-                        <!-- Descrição (ro) -->
-                        <td><input type="text" class="form-control" id="descricao" name="descricao" readonly></td>
-
-                        <!-- UM (ro) -->
-                        <td><input type="text" class="form-control" id="unidade" name="unidade" readonly></td>
-
-                        <!-- Conta Contábil (zoom editável) -->
-                        <td>
-                          <input type="zoom" class="form-control" id="contaContabil" name="contaContabil"
-                            zoomvalue="codigo" data-zoom="{ 
-                              'datasetId':'ds_protheus_contaContabil',
-                              'displayKey':'CT1_DESC01',
-                              'placeholder':'Selecione...',
-                              'fields':[
-                                {
-                                  'field':'CT1_CONTA',
-                                  'label':'Código',
-                                  'visible':'false'
-                                },{
-                                  'field':'CT1_DESC01',
-                                  'label':'Descrição',
-                                  'standard':true
-                                }
-                                ]}">
-                          <input type="hidden" id="hidden_contaContabil" name="hidden_contaContabil">
-                        </td>
-
-                        <!-- Centro de Custo (zoom editável) -->
-                        <td>
-                          <input type="zoom" class="form-control" id="centroCusto" name="centroCusto" zoomvalue="codigo"
-                            data-zoom="{ 
-                              'datasetId':'ds_protheus_centroCusto',
-                              'displayKey':'CTT_DESC01',
-                              'placeholder':'Selecione...',
-                              'fields':[
-                                {
-                                  'field':'CTT_CUSTO',
-                                  'label':'Código',
-                                  'visible':'false'
-                                },{
-                                  'field':'CTT_DESC01',
-                                  'label':'Descrição',
-                                  'standard':true
-                                }
-                                ]}">
-                          <input type="hidden" id="hidden_centroCusto" name="hidden_centroCusto">
-                          <input type="hidden" id="armazem" name="armazem">
-                        </td>
-
-                        <!-- Quantidade -->
-                        <td><input type="number" class="form-control" id="quantidade" name="quantidade" min="1.000"
-                            step="1.000" placeholder="0,000">
-                        </td>
-
-                         <!-- Armazém (ro) -->
-                        <td><input type="text" class="form-control real" id="valorUn" name="valorUn" placeholder="0,00"></td>
-                        <td><input type="text" class="form-control" id="valorTotal" name="valorTotal" readonly></td>
-
-                        <!-- Remover -->
-                        <td class="text-center">
-                          <span class="fluigicon fluigicon-trash icon-sm icon-btn" title="Remover"
-                            onclick="fnWdkRemoveChild(this)"></span>
+                      <tr>
+                        <td class="col-md-12">
+                          <div class="form-group row">
+                            <div class="col-md-5">
+                              <label for="produto">Produto <span style="color: red">*</span></label>
+                              <input type="zoom" class="form-control" id="produto" name="produto" zoomvalue="codigo"
+                                data-zoom="{ 
+                                  'datasetId':'ds_protheus_produto',
+                                  'displayKey':'DESCRICAO_ZOOM',
+                                  'placeholder':'Pesquisar produto...',
+                                  'fields':[
+                                    {
+                                      'field':'B1_COD',
+                                      'label':'Código',
+                                      'visible':'false'
+                                    },{
+                                      'field':'DESCRICAO_ZOOM',
+                                      'label':'Descrição',
+                                      'standard':true
+                                    },{
+                                      'field':'B1_UM',
+                                      'label':'UM',
+                                      'visible':'false'
+                                    },{
+                                      'field':'B1_CONTA',
+                                      'label':'Conta',
+                                      'visible':'false'
+                                    },{
+                                      'field':'B1_CCCUSTO',
+                                      'label':'CC',
+                                      'visible':'false'
+                                    },{
+                                      'field':'B1_GRUPO',
+                                      'label':'Armazém',
+                                      'visible':'false'
+                                    }
+                                    ]}">
+                              <input type="hidden" id="hidden_produto" name="hidden_produto">
+                            </div>
+                            <div class="col-md-2">
+                              <label for="unidade">UND</label>
+                              <input type="text" class="form-control" id="unidade" name="unidade" readonly>
+                            </div>
+                            <div class="col-md-5">
+                              <label for="contaContabil">Conta Contábil <span style="color: red">*</span></label>
+                              <input type="zoom" class="form-control" id="contaContabil" name="contaContabil"
+                                zoomvalue="codigo" data-zoom="{ 
+                                  'datasetId':'ds_protheus_contaContabil',
+                                  'displayKey':'DESCRICAO_ZOOM',
+                                  'placeholder':'Selecione...',
+                                  'fields':[
+                                    {
+                                      'field':'DESCRICAO_ZOOM',
+                                      'label':'Descrição',
+                                      'standard':true
+                                    }
+                                    ]}">
+                              <input type="hidden" id="hidden_contaContabil" name="hidden_contaContabil">
+                            </div>
+                          </div>
+                          <div class="form-group row">
+                            <div class="col-md-5">
+                              <label for="centroCusto">Centro de Custo <span style="color: red">*</span></label>
+                              <input type="zoom" class="form-control" id="centroCusto" name="centroCusto" zoomvalue="codigo"
+                                data-zoom="{ 
+                                  'datasetId':'ds_protheus_centroCusto',
+                                  'displayKey':'DESCRICAO_ZOOM',
+                                  'placeholder':'Selecione...',
+                                  'fields':[
+                                    {
+                                      'field':'CTT_CUSTO',
+                                      'label':'Código',
+                                      'visible':'false'
+                                    },{
+                                      'field':'DESCRICAO_ZOOM',
+                                      'label':'Descrição',
+                                      'standard':true
+                                    }
+                                    ]}">
+                              <input type="hidden" id="hidden_centroCusto" name="hidden_centroCusto">
+                              <input type="hidden" id="armazem" name="armazem">
+                            </div>
+                            <div class="col-md-2">
+                              <label>Quantidade <span style="color: red">*</span></label>
+                              <input type="number" class="form-control" id="quantidade" name="quantidade" min="1.000" step="1.000" placeholder="0,000">
+                            </div>
+                            <div class="col-md-2">
+                              <label>Valor Unitário <span style="color: red">*</span></label>
+                              <input type="text" class="form-control real" id="valorUn" name="valorUn" placeholder="0,00">
+                            </div>
+                            <div class="col-md-3">
+                              <label>Valor Total <span style="color: red">*</span></label>
+                              <input type="text" class="form-control" id="valorTotal" name="valorTotal" readonly>
+                            </div>
+                          </div>
                         </td>
                       </tr>
                     </tbody>
@@ -343,7 +355,6 @@
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -361,9 +372,9 @@
         </div>
         <div id="panelCollapse_2" class="panel-collapse collapse in">
           <div class="panel-body">
-            <input type="hidden" id="controleAprovacoes" name="controleAprovacoes" value="{}"/>
-            <input type="hidden" id="controleOrdem" name="controleOrdem" value="1"/>
-            <input type="hidden" id="statusAprovacao" name="statusAprovacao" value="pendente"/>
+            <input type="hidden" id="controleAprovacoes" name="controleAprovacoes" value="{}" />
+            <input type="hidden" id="controleOrdem" name="controleOrdem" value="1" />
+            <input type="hidden" id="statusAprovacao" name="statusAprovacao" value="pendente" />
             <!-- 1ª linha: data/hora, aprovador, cargo -->
             <div class="row" style="margin-bottom:10px;">
               <div class="col-md-3">
@@ -397,7 +408,7 @@
                     <span class="fluigicon fluigicon-remove icon-sm" aria-hidden="true"></span>
                     Reprovar
                   </label>
-                  <input type="hidden" name="hidden_decisao" id="hidden_decisao"/>
+                  <input type="hidden" name="hidden_decisao" id="hidden_decisao" />
                 </div>
               </div>
             </div>
