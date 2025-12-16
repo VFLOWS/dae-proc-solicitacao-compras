@@ -63,6 +63,134 @@ class FormController {
     $('.real').mask("#.##0,00", {
       reverse: true
     });
+
+    // Formatar quantidade com separador de milhar e até 4 casas decimais
+    const formController = this;
+    $('.quantidade-decimal').on('input', function(e) {
+      formController.formatarQuantidadeInput(this);
+    });
+    
+    $('.quantidade-decimal').on('keypress', function(e) {
+      return formController.validarQuantidadeKeypress(this, e);
+    });
+    
+    // Normalizar casas decimais ao perder o foco
+    $('.quantidade-decimal').on('blur', function() {
+      formController.normalizarQuantidadeBlur(this);
+    });
+  }
+
+  /**
+   * @function formatarQuantidadeInput Formata o campo quantidade enquanto o usuário digita
+   * @param {HTMLElement} field - Campo de input
+   */
+  formatarQuantidadeInput(field) {
+    let valor = field.value;
+    let cursorPos = field.selectionStart;
+    
+    // Remove tudo exceto números e vírgula
+    let valorLimpo = valor.replace(/[^\d,]/g, '');
+    
+    // Permite apenas uma vírgula
+    let partes = valorLimpo.split(',');
+    if (partes.length > 2) {
+      valorLimpo = partes[0] + ',' + partes.slice(1).join('');
+    }
+    
+    // Limita a 4 casas decimais após a vírgula
+    partes = valorLimpo.split(',');
+    if (partes.length === 2 && partes[1].length > 4) {
+      partes[1] = partes[1].substring(0, 4);
+      valorLimpo = partes.join(',');
+    }
+    
+    // Adiciona separador de milhar na parte inteira
+    if (partes[0]) {
+      let parteInteira = partes[0];
+      let parteInteiraFormatada = parteInteira.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      
+      // Calcula a diferença de tamanho causada pelos pontos
+      let difTamanho = parteInteiraFormatada.length - parteInteira.length;
+      
+      valorLimpo = parteInteiraFormatada + (partes.length === 2 ? ',' + partes[1] : '');
+      
+      // Ajusta posição do cursor
+      if (valor !== valorLimpo) {
+        cursorPos += difTamanho;
+      }
+    }
+    
+    // Atualiza o campo
+    if (field.value !== valorLimpo) {
+      field.value = valorLimpo;
+      field.setSelectionRange(cursorPos, cursorPos);
+    }
+  }
+
+  /**
+   * @function validarQuantidadeKeypress Valida as teclas permitidas no campo quantidade
+   * @param {HTMLElement} field - Campo de input
+   * @param {Event} e - Evento de keypress
+   * @returns {boolean} True se a tecla é permitida, false caso contrário
+   */
+  validarQuantidadeKeypress(field, e) {
+    const char = String.fromCharCode(e.which);
+    const valor = field.value;
+    
+    // Permite números
+    if (/\d/.test(char)) {
+      return true;
+    }
+    
+    // Permite vírgula se ainda não tem vírgula
+    if (char === ',' && valor.indexOf(',') === -1) {
+      return true;
+    }
+    
+    // Bloqueia outras teclas
+    if (e.which !== 8 && e.which !== 46) { // Permite backspace e delete
+      e.preventDefault();
+      return false;
+    }
+    
+    return true;
+  }
+
+  /**
+   * @function normalizarQuantidadeBlur Normaliza as casas decimais ao perder o foco
+   * @param {HTMLElement} field - Campo de input
+   */
+  normalizarQuantidadeBlur(field) {
+    let valor = field.value.trim();
+    
+    if (!valor) {
+      return;
+    }
+    
+    // Remove os pontos de milhar temporariamente
+    let valorSemPonto = valor.replace(/\./g, '');
+    
+    // Verifica se tem vírgula
+    let partes = valorSemPonto.split(',');
+    
+    if (partes.length === 1) {
+      // Não tem casas decimais, adiciona ,0000
+      valorSemPonto += ',0000';
+    } else {
+      // Completa com zeros até ter 4 casas decimais
+      let casasDecimais = partes[1].length;
+      if (casasDecimais < 4) {
+        partes[1] = partes[1].padEnd(4, '0');
+        valorSemPonto = partes.join(',');
+      }
+    }
+    
+    // Reaplica a formatação com separador de milhar
+    partes = valorSemPonto.split(',');
+    let parteInteira = partes[0];
+    let parteInteiraFormatada = parteInteira.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    
+    field.value = parteInteiraFormatada + (partes.length === 2 ? ',' + partes[1] : '');
   }
 
   atualizaValorDiarias() {
@@ -82,29 +210,49 @@ class FormController {
   adicionarItem(event) {
     const TABELA_ITEM = 'tbItens';
     const indexLinhaCriada = wdkAddChild(TABELA_ITEM);
+    
+    const formController = this;
+    const quantidadeField = $(`#quantidade___${indexLinhaCriada}`);
+    
+    // Formatar quantidade com separador de milhar e até 4 casas decimais
+    quantidadeField.on('input', function(e) {
+      formController.formatarQuantidadeInput(this);
+    });
+    
+    quantidadeField.on('keypress', function(e) {
+      return formController.validarQuantidadeKeypress(this, e);
+    });
+    
+    // Normalizar casas decimais ao perder o foco
+    quantidadeField.on('blur', function() {
+      formController.normalizarQuantidadeBlur(this);
+    });
+    
     $(`#valorUn___${indexLinhaCriada}`).on("change", function (data) {
       var quantidade = $(`#quantidade___${indexLinhaCriada}`).val();
       var valor = data.target.value;
-      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
-        minimumFractionDigits: 2
-      }));
-      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
-        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
-      }
+        var total = (quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.'))).toFixed(2);
+        $(`#valorTotal___${indexLinhaCriada}`).val(parseFloat(total).toLocaleString('pt-br', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
+        if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+          $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+        }
     })
     $(`#quantidade___${indexLinhaCriada}`).on("change", function (data) {
       var valor = $(`#valorUn___${indexLinhaCriada}`).val();
       var quantidade = data.target.value;
-      var total = quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.')).toFixed(2);
-      $(`#valorTotal___${indexLinhaCriada}`).val(total.toLocaleString('pt-br', {
-        minimumFractionDigits: 2
-      }));
-      if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
-        $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
-      }
+        var total = (quantidade * parseFloat(valor.replace(/[^0-9,]*/g, '').replace(',', '.'))).toFixed(2);
+        $(`#valorTotal___${indexLinhaCriada}`).val(parseFloat(total).toLocaleString('pt-br', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        }));
+        if ($(`#valorTotal___${indexLinhaCriada}`).val() == 'NaN') {
+          $(`#valorTotal___${indexLinhaCriada}`).val('0,00');
+        }
     })
-     $('.real').mask('#.##0,00', {
+    $('.real').mask('#.##0,00', {
       reverse: true,
       placeholder: '0,00'
     });
@@ -170,6 +318,7 @@ class FormController {
 
       if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
         var idx = Util.getIdx(idSelecionado, "produto");
+        Util.setVal("hidden_produto___" + idx, zoomItem["B1_COD"] || "");
         Util.setVal("descricao___" + idx, zoomItem["B1_COD"] || "");
         Util.setVal("unidade___" + idx, zoomItem["B1_UM"] || "");
         Util.setVal("armazem___" + idx, zoomItem["B1_GRUPO"] || "");
@@ -188,53 +337,76 @@ class FormController {
           });
         }
       }
+      if (idSelecionado.indexOf("armazem___") === 0 || idSelecionado === "armazem") {
+        var idx = Util.getIdx(idSelecionado, "armazem");
+        Util.setVal("hidden_armazem___" + idx, zoomItem["NNR_CODIGO"] || "");
+      }
+
+      if (idSelecionado.indexOf("classeValor___") === 0 || idSelecionado === "classeValor") {
+        var idx = Util.getIdx(idSelecionado, "classeValor");
+        Util.setVal("hidden_classeValor___" + idx, zoomItem["CTH_CLVL"] || "");
+      }
+
       if (idSelecionado.indexOf("contaContabil___") === 0 || idSelecionado === "contaContabil") {
         var idx = Util.getIdx(idSelecionado, "contaContabil");
         Util.setVal("hidden_contaContabil___" + idx, zoomItem["CT1_CONTA"] || "");
       }
+
       if (idSelecionado.indexOf("centroCusto___") === 0 || idSelecionado === "centroCusto") {
         var idx = Util.getIdx(idSelecionado, "centroCusto");
         Util.setVal("hidden_centroCusto___" + idx, zoomItem["CTT_CUSTO"] || "");
         Util.setVal("armazem___" + idx, zoomItem["CTT_FILIAL"] || "");
       }
-      if (idSelecionado.indexOf("codComprador___") === 0 || idSelecionado === "codComprador") {
-        var idx = Util.getIdx(idSelecionado, "codComprador");
-        Util.setVal("hidden_codComprador___" + idx, zoomItem["Y1_COD"] || "");
+      if (idSelecionado === "codComprador") {
+        Util.setVal("hidden_codComprador", zoomItem["Y1_COD"] || "");
       }
-      if (idSelecionado.indexOf("filialEntrega___") === 0 || idSelecionado === "filialEntrega") {
-        var idx = Util.getIdx(idSelecionado, "filialEntrega");
-        Util.setVal("hidden_filialEntrega___" + idx, zoomItem["Y1_COD"] || "");
+      if (idSelecionado === "filialEntrega") {
+        Util.setVal("hidden_filialEntrega", zoomItem["M0_CODIGO"] || "");
       }
+
+
+      
 
 
     } else if (acaoZoom == AcaoZoom.REMOVIDO) {
 
       if (idSelecionado.indexOf("produto___") === 0 || idSelecionado === "produto") {
         var idx = Util.getIdx(idSelecionado, "produto");
+        Util.setVal("hidden_produto___" + idx, "");
         Util.setVal("descricao___" + idx, "");
         Util.setVal("unidade___" + idx, "");
+        Util.setVal("classeValor___" + idx, "");
         Util.setVal("armazem___" + idx, "");
       }
-      
+
       if (idSelecionado.indexOf("contaContabil___") === 0 || idSelecionado === "contaContabil") {
         var idx = Util.getIdx(idSelecionado, "contaContabil");
         Util.setVal("hidden_contaContabil___" + idx, "");
       }
-      
+
+      if (idSelecionado.indexOf("armazem___") === 0 || idSelecionado === "armazem") {
+        var idx = Util.getIdx(idSelecionado, "armazem");
+        Util.setVal("hidden_armazem___" + idx, "");
+      }
+
+
+      if (idSelecionado.indexOf("classeValor___") === 0 || idSelecionado === "classeValor") {
+        var idx = Util.getIdx(idSelecionado, "classeValor");
+        Util.setVal("hidden_classeValor___" + idx, "");
+      }
+
       if (idSelecionado.indexOf("centroCusto___") === 0 || idSelecionado === "centroCusto") {
         var idx = Util.getIdx(idSelecionado, "centroCusto");
         Util.setVal("hidden_centroCusto___" + idx, "");
-        Util.setVal("armazem___" + idx, "");
+        
       }
-      
-      if (idSelecionado.indexOf("codComprador___") === 0 || idSelecionado === "codComprador") {
-        var idx = Util.getIdx(idSelecionado, "codComprador");
-        Util.setVal("hidden_codComprador___" + idx, "");
+
+
+      if (idSelecionado === "codComprador") {
+        Util.setVal("hidden_codComprador", "");
       }
-      
-      if (idSelecionado.indexOf("filialEntrega___") === 0 || idSelecionado === "filialEntrega") {
-        var idx = Util.getIdx(idSelecionado, "filialEntrega");
-        Util.setVal("hidden_filialEntrega___" + idx, "");
+      if (idSelecionado === "filialEntrega") {
+        Util.setVal("hidden_filialEntrega", "");
       }
 
     }
@@ -269,50 +441,72 @@ class FormController {
 
           html += `<ol class="vf-tl-list">`
 
-          var nome = this.consultaNome(aprovacoes[i][numsc][j]["matricula"])
+          var nome = this.consultaNome(aprovacoes[i][numsc][j]["IDFLUIG"])
+          var crStatus = aprovacoes[i][numsc][j]["CR_STATUS"]
+          var alItem = aprovacoes[i][numsc][j]["AL_ITEM"] // Usar AL_ITEM como ordem
+          var idFluig = aprovacoes[i][numsc][j]["IDFLUIG"]
+          
+          // Busca a justificativa específica deste aprovador nos painéis de histórico
+          var justificativaAprovador = "Pendente";
+          
+          // Para status pendente, busca no campo atual se for o aprovador atual
+          if (crStatus == "02") {
+            var usuarioAtual = $("#loginSolicitante").val(); // ou a variável que identifica o usuário atual
+            if (idFluig === usuarioAtual) {
+            var justificativa = $("#justificativaAprov").val();
+            justificativaAprovador = justificativa ? `- ${justificativa}` : "Pendente";
+            } else {
+            justificativaAprovador = "Pendente";
+            }
+          } else {
+          // Para aprovadores que já finalizaram, busca a justificativa no histórico
+          var justificativa = aprovacoes[i][numsc][j]["CR_OBS"];
+          justificativaAprovador = justificativa ? `- ${justificativa}` : (crStatus == "03" ? "Aprovado" : "Rejeitado");
+          }
 
-          if (aprovacoes[i][numsc][j]["status"] == "pendente") {
+          // CR_STATUS: "02" = pendente, "03" = liberado, "06" = rejeitado
+          if (crStatus == "02") {
             html += `
                 <li class="vf-tl-item vf-st-pendente">
                   <div class="vf-tl-marker"><span class="fluigicon fluigicon-time icon-sm"></span></div>
                   <div class="vf-tl-content">
                     <div class="vf-tl-row">
-                      <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
-                      <span class="vf-tl-date">Pendente</span>
+                      <strong>Nível ${alItem} - ${nome}</strong>
+                      <span class="vf-tl-date">↻</span>
                     </div>
-                    <div class="vf-tl-meta"> ---</div>
+                    <div class="vf-tl-meta"> Pendente </div>
                   </div>
                 </li>
             `
           }
 
-          if (aprovacoes[i][numsc][j]["status"] == "aprovado") {
+          if (crStatus == "03") {
             html += `
                 <li class="vf-tl-item vf-st-aprovado">
                   <div class="vf-tl-marker"><span class="fluigicon fluigicon-check icon-sm"></span></div>
                   <div class="vf-tl-content">
                     <div class="vf-tl-row">
-                      <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
-                      <span class="vf-tl-date">${aprovacoes[i][numsc][j]["horario"]}</span>
+                      <strong>Nível ${alItem} - ${nome}</strong>
+                      <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_DATA_ATUAL"] || aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
                     </div>
                     <div class="vf-tl-meta">${nome}</div>
-                    <div class="vf-tl-note">${aprovacoes[i][numsc][j]["comentario"]}</div>
+                    <div class="vf-tl-note">Aprovado ${justificativaAprovador}</div>
                   </div>
                 </li>
             `
           }
 
-          if (aprovacoes[i][numsc][j]["status"] == "reprovado") {
+          if (crStatus == "06") {
             html += `
                  <li class="vf-tl-item vf-st-reprovado">
                     <div class="vf-tl-marker"><span class="fluigicon fluigicon-remove icon-sm"></span></div>
                     <div class="vf-tl-content">
                       <div class="vf-tl-row">
-                        <strong>Nível ${aprovacoes[i][numsc][j]["ordem"]} - ${nome}</strong>
-                        <span class="vf-tl-date">${aprovacoes[i][numsc][j]["horario"]}</span>
+                        <strong>Nível ${alItem} - ${nome}</strong>
+                        <span class="vf-tl-date">${aprovacoes[i][numsc][j]["CR_DATA_ATUAL"] || aprovacoes[i][numsc][j]["CR_EMISSAO"] || "---"}</span>
                       </div>
                       <div class="vf-tl-meta">${nome}</div>
-                      <div class="vf-tl-note">${aprovacoes[i][numsc][j]["comentario"]}</div>
+                      <div class="vf-tl-note">Reprovado ${justificativaAprovador}</div>
                     </div>
                   </li>
             `
@@ -328,7 +522,7 @@ class FormController {
           </div>
       `
 
-      $("#aprovacoes").append(html)
+        $("#aprovacoes").append(html)
       }
 
     }
@@ -481,6 +675,23 @@ class FormController {
       if ($(`#${indexHistorico}_hidden_decisao`).val() == "REPROVAR") {
         $(`#${indexHistorico}_decisao_reprovar`).attr('checked', 'checked')
         $(`label[for="${indexHistorico}_decisao_reprovar"]`).css({
+          "background": "#b91c1c",
+          "border-color": "#b91c1c",
+          "color": "#fff"
+        })
+      }
+
+      if ($(`#${indexHistorico}_hidden_decisao_cancelar`).val() == "CANCELAR") {
+        $(`#${indexHistorico}_decisao_cancelar_sim`).attr('checked', 'checked')
+        $(`label[for="${indexHistorico}_decisao_cancelar_sim"]`).css({
+          "background": "#15803d",
+          "border-color": "#15803d",
+          "color": "#fff"
+        })
+      }
+      if ($(`#${indexHistorico}_hidden_decisao_cancelar`).val() == "NAOCANCELAR") {
+        $(`#${indexHistorico}_decisao_cancelar_nao`).attr('checked', 'checked')
+        $(`label[for="${indexHistorico}_decisao_cancelar_nao"]`).css({
           "background": "#b91c1c",
           "border-color": "#b91c1c",
           "color": "#fff"

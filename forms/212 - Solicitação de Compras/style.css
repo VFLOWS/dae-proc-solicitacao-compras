@@ -178,6 +178,26 @@
     color: #fff;
 }
 
+/* Estados selecionados para decisão de cancelamento */
+#decisao_cancelar_sim:checked+label.vf-approve {
+    background: var(--dae-ok);
+    border-color: var(--dae-ok);
+    color: #fff;
+}
+
+#decisao_cancelar_nao:checked+label.vf-reprove {
+    background: var(--dae-warn);
+    border-color: var(--dae-warn);
+    color: #fff;
+}
+
+/* Estilo de erro para grupo de decisão */
+.vf-decisao-group.has-error .vf-decisao {
+    border-color: #d9534f;
+    box-shadow: 0 0 0 2px rgba(217, 83, 79, 0.2);
+}
+
+
 .vf-timeline .vf-tl-list {
     list-style: none;
     margin: 0;
@@ -269,4 +289,17 @@
 
 .vf-timeline .vf-st-reprovado .vf-tl-content {
     border-color: rgba(185, 28, 28, .35);
+}
+
+/* Classes para forçar estilos de radio buttons no histórico */
+.vf-checked-approve {
+    background: #15803d !important;
+    border-color: #15803d !important;
+    color: #fff !important;
+}
+
+.vf-checked-reject {
+    background: #b91c1c !important;
+    border-color: #b91c1c !important;
+    color: #fff !important;
 }

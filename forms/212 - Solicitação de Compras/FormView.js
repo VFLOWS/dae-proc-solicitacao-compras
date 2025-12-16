@@ -11,6 +11,10 @@ class Painel {
     return "painelHistoricoAprovacoes";
   }
 
+  static get ERROS() {
+    return "painelErro";
+  }
+
 }
 
 class TipoExibicaoPainel {
